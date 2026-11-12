@@ -7,10 +7,11 @@
     "build": "vite build",
     "format": "prettier --write src index.html vercel.json package.json README.md",
     "test": "node scripts/check-content.mjs && node scripts/check-sql.mjs && playwright test",
-    "prebuild": "node scripts/reference-manifest.mjs",
+    "prebuild": "node scripts/reference-manifest.mjs && node scripts/copy-wasm.mjs",
     "test:content": "node scripts/check-content.mjs",
     "test:csharp": "node scripts/check-csharp.mjs",
-    "test:sql": "node scripts/check-sql.mjs"
+    "test:sql": "node scripts/check-sql.mjs",
+    "predev": "node scripts/copy-wasm.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
