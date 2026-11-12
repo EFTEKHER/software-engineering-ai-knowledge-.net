@@ -64,13 +64,13 @@ async function worker() {
     await mkdir(dir, { recursive: true });
     const refs = s.packages.map((p) => `<PackageReference Include="${p.name}" Version="${p.pre ? "*-*" : "*"}" />`).join("");
     await writeFile(path.join(dir, "Example.csproj"),
-      `<Project Sdk="Microsoft.NET.Sdk${s.web ? ".Web" : ""}"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net9.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><NoWarn>CS8618;CS1998;CS8602;CS8600;CS8604;CS0168;CS0219;ASP0000;EXTEXP0018</NoWarn></PropertyGroup><ItemGroup>${refs}</ItemGroup></Project>`);
+      `<Project Sdk="Microsoft.NET.Sdk${s.web ? ".Web" : ""}"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>${process.env.TFM || "net11.0"}</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><NoWarn>CS8618;CS1998;CS8602;CS8600;CS8604;CS0168;CS0219;ASP0000;EXTEXP0018</NoWarn></PropertyGroup><ItemGroup>${refs}</ItemGroup></Project>`);
     await writeFile(path.join(dir, "Program.cs"), s.code);
     const b = await run(["build", "-v", "q", "-clp:ErrorsOnly"], dir);
     if (b.code) { failures.push({ where: s.where, kind: "build", output: b.output.split("\n").filter((l) => /error/.test(l)).slice(0, 4).join("\n") }); continue; }
     built++;
     if (!s.web && s.expected) {
-      const r = await run(["run", "--no-build"], dir, 60000);
+      const r = await run([path.join(dir, "bin", "Debug", process.env.TFM || "net11.0", "Example.dll")], dir, 60000);
       const got = r.output.replace(/\r/g, "").trim();
       if (got !== s.expected.trim()) failures.push({ where: s.where, kind: "output", output: `EXPECTED:\n${s.expected.trim()}\nGOT:\n${got}` });
       else ran++;
