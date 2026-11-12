@@ -1,7 +1,8 @@
 // Adds beginner-friendly sections and extra runnable examples to every module.
 // Each module file exports { [topic]: entry } where entry =
 // { s: [storyEn, storyBn], t: [theoryEn, theoryBn], p: [[en, bn] x4],
-//   m: [mistakesEn, mistakesBn], f?: [futureTipEn, futureTipBn], x: [examples] }
+//   m: [mistakesEn, mistakesBn], q?: [interviewEn, interviewBn],
+//   f?: [futureTipEn, futureTipBn], x: [examples] }
 const loaders = {
   0: () => import("./m00"),
   1: () => import("./m01"),
@@ -26,6 +27,7 @@ const titles = {
   steps: "Do it step by step · ধাপে ধাপে করুন",
   mistakes: "Common mistakes and fixes · সাধারণ ভুল ও সমাধান",
   future: "2028-ready engineer tip · ২০২৮-এর জন্য প্রস্তুত টিপস",
+  interview: "Interview practice · ইন্টারভিউ অনুশীলন",
 };
 
 export async function enrichModule(lesson, chapter) {
@@ -52,6 +54,7 @@ export async function enrichModule(lesson, chapter) {
     },
     { id: "common-mistakes", toc: "Mistakes", title: titles.mistakes, en: x.m[0], bn: x.m[1] },
   ];
+  if (x.q) sections.push({ id: "interview-practice", toc: "Interview", title: titles.interview, en: x.q[0], bn: x.q[1] });
   if (x.f) sections.push({ id: "future-ready", toc: "2028 tip", title: titles.future, en: x.f[0], bn: x.f[1] });
   return {
     ...chapter,
