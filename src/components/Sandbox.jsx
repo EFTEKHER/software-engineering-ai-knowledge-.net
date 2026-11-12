@@ -269,6 +269,18 @@ export default function Sandbox({ lang: uiLang }) {
     } catch {}
   }, [code, language]);
 
+  // Start downloading Python as soon as its tab is open, so the first Run is quick (helps on phones).
+  useEffect(() => {
+    if (language !== "python") return;
+    const t = setTimeout(() => {
+      try {
+        const w = getWorker("python");
+        if (!w.onmessage) w.onmessage = ({ data }) => { if (data.type === "ready") w.pyReady = true; };
+      } catch {}
+    }, 300);
+    return () => clearTimeout(t);
+  }, [language]);
+
   const switchLanguage = (l) => {
     if (running) stop();
     setLanguage(l);
@@ -331,7 +343,10 @@ export default function Sandbox({ lang: uiLang }) {
         }
       };
     } else {
-      if (language === "python" && !w.pyReady) setStatus("Loading Python (first time ~10 MB)… · Python লোড হচ্ছে…");
+      if (language === "python" && !w.pyReady) {
+        setStatus("Loading Python (first time ~10 MB)… · Python লোড হচ্ছে…");
+        armTimeout(90000, "Python could not load in 90s. Check your internet connection and try again. · Python লোড হয়নি, internet সংযোগ দেখে আবার চেষ্টা করুন।");
+      }
       w.onmessage = ({ data }) => {
         if (data.type === "ready") {
           w.pyReady = true;
@@ -346,13 +361,13 @@ export default function Sandbox({ lang: uiLang }) {
     }
   };
 
-  const armTimeout = (ms) => {
+  const armTimeout = (ms, message) => {
     clearTimeout(timer.current);
     timer.current = setTimeout(() => {
       const w = workers.current[language];
       w?.terminate();
       workers.current[language] = null;
-      setOutput((o) => [...o, { kind: "error", text: `Time limit ${ms / 1000}s reached — infinite loop? · সময় শেষ, অসীম loop?` }]);
+      setOutput((o) => [...o, { kind: "error", text: message || `Time limit ${ms / 1000}s reached — infinite loop? · সময় শেষ, অসীম loop?` }]);
       finish("Timed out");
     }, ms);
   };
