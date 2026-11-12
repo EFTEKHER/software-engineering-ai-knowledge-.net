@@ -463,4 +463,25 @@ export const contexts = [
       ],
     ],
   },
+  {
+    need: [
+      "C# basics, async/await, an ASP.NET Core API, and module 15 (Agentic AI)",
+      "C#-এর মূল বিষয়, async/await, ASP.NET Core API এবং মডিউল ১৫ (Agentic AI)",
+    ],
+    why: [
+      "By 2028 almost every software team ships AI features and works with AI coding assistants. Employers want engineers who can connect models to real systems safely: clear specs, typed .NET code, tools with permissions, retrieval over company data, evaluations in CI, and dashboards for cost and quality. This module turns AI from a demo into dependable software.",
+      "২০২৮-এর মধ্যে প্রায় প্রতিটি software দল AI feature বানায় ও AI coding assistant ব্যবহার করে। কোম্পানি এমন engineer চায় যে model-কে বাস্তব system-এর সাথে নিরাপদে যুক্ত করতে পারে: স্পষ্ট spec, typed .NET code, অনুমতিসহ tool, কোম্পানির data-তে retrieval, CI-তে eval, আর খরচ ও মানের dashboard। এই মডিউল AI-কে demo থেকে নির্ভরযোগ্য software বানায়।",
+    ],
+    analogy: [
+      "A model is a powerful engine. This module builds the rest of the car: steering (specs and prompts), brakes (approvals and limits), dashboard (observability), and safety inspection (evals).",
+      "Model হলো শক্তিশালী ইঞ্জিন। এই মডিউল গাড়ির বাকিটা বানায়: স্টিয়ারিং (spec ও prompt), ব্রেক (অনুমোদন ও সীমা), ড্যাশবোর্ড (observability), আর নিরাপত্তা পরীক্ষা (eval)।",
+    ],
+    terms: [
+      ["IChatClient", "One .NET interface for many chat models", "অনেক chat model-এর একটি .NET interface"],
+      ["MCP", "Open protocol for AI apps to call your tools", "AI app থেকে আপনার tool ডাকার খোলা protocol"],
+      ["Eval", "Repeatable quality test for AI output", "AI output-এর পুনরাবৃত্তিযোগ্য মান পরীক্ষা"],
+      ["Token budget", "Limit on tokens, cost and time per feature", "feature-প্রতি token, খরচ ও সময়ের সীমা"],
+      ["Human-in-the-loop", "A person approves risky AI actions", "ঝুঁকির AI কাজে মানুষের অনুমোদন"],
+    ],
+  },
 ];

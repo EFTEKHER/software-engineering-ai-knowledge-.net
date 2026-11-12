@@ -3,6 +3,7 @@ import { cli } from "./cli";
 import { sql } from "./sql";
 import { concepts } from "./concepts";
 import { aspnetConcepts } from "./aspnetConcepts";
+import { ai2028Concepts } from "./ai2028Concepts";
 import { contexts } from "./context";
 import incidents from "./incidents.json";
 import { banglaWarnings, cliWarnings, sqlWarnings } from "./bangla";
@@ -228,7 +229,11 @@ export function getLesson(m, t) {
       bn: incident.bn,
       incident,
     };
-  } else raw = (m.id === 7 && aspnetConcepts[topic]) || concepts[topic];
+  } else
+    raw =
+      (m.id === 7 && aspnetConcepts[topic]) ||
+      (m.id === 16 && ai2028Concepts[topic]) ||
+      concepts[topic];
   if (!raw) throw new Error("Missing lesson " + m.id + ":" + t + " " + topic);
   if (m.id === 13 && raw.code.trim().startsWith("aws ")) lang = "bash";
   if (
@@ -241,6 +246,7 @@ export function getLesson(m, t) {
       "Helm",
       "Terraform",
       "Git and GitHub",
+      "AI-Assisted Coding Workflow",
       "Docker & Kubernetes",
       "AWS Cloud",
       "EF Core Migrations",
@@ -300,7 +306,7 @@ function docs(id, topic) {
   if (id === 13) return ["AWS documentation", "https://docs.aws.amazon.com/"];
   if (id === 6)
     return ["OWASP Cheat Sheet Series", "https://cheatsheetseries.owasp.org/"];
-  if (id === 15)
+  if (id === 15 || id === 16)
     return [
       "Microsoft .NET AI documentation",
       "https://learn.microsoft.com/dotnet/ai/",

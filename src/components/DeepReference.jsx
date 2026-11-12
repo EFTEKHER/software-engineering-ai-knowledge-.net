@@ -9,7 +9,9 @@ import {
   ArrowUpRight,
   Search,
   Printer,
+  Play,
 } from "lucide-react";
+import { sendToSandbox, sandboxLanguages } from "./sandboxBridge";
 import { loadChapter } from "../content/reference";
 import modules from "../curriculum.json";
 import CodeLab from "./CodeLab";
@@ -55,6 +57,8 @@ function Example({ example, index, lesson, lang }) {
       "sql-reference": "sql",
       bash: "sh",
       javascript: "js",
+      python: "py",
+      markdown: "md",
       yaml: "yml",
       json: "json",
       hcl: "tf",
@@ -96,6 +100,16 @@ function Example({ example, index, lesson, lang }) {
           </small>
         </div>
         <div>
+          {sandboxLanguages[example.language] && !(example.language === "sql" && lesson.module.id === 2) && (
+            <button
+              className="reference-try"
+              onClick={() => sendToSandbox(example.language, example.code)}
+              aria-label={`Open example ${index + 1} in the sandbox`}
+              title="Open in Sandbox · স্যান্ডবক্সে খুলুন"
+            >
+              <Play size={15} /> Try
+            </button>
+          )}
           <button
             onClick={copy}
             aria-label={`Copy additional example ${index + 1}`}
@@ -320,7 +334,7 @@ export default function DeepReference({ lesson, lang }) {
           ["mechanism", "How it works"],
           ...(chapter.extraSections || []).map((s) => [
             s.id,
-            s.id === "easy-story" ? "Easy story" : "4 C# steps",
+            s.toc || (s.id === "easy-story" ? "Easy story" : s.title.split(" · ")[0]),
           ]),
           ["decisions", "Decisions & limits"],
           ["examples", "More code"],
