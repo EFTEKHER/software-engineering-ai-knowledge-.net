@@ -107,6 +107,10 @@ export async function loadChapter(lesson) {
     const { enrichExisting } = await import("./aspnet");
     chapter = enrichExisting(lesson, enhanceBackendEngineering(lesson, chapter));
   }
+  if (m === 5) {
+    const { enhanceBackendDevelopment } = await import("./backendDevelopment");
+    chapter = enhanceBackendDevelopment(lesson, chapter);
+  }
   chapter = {
     ...chapter,
     examples: chapter.examples.map((e) => ({
