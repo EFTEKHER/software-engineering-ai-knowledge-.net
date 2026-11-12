@@ -105,3 +105,14 @@ The tracked `vercel.json` selects Vite, `npm run build`, and `dist/`. Import thi
 For quick guides, add or improve a record in `content/concepts.js`, retaining the `~~ English / বাংলা` code annotation format. Expanded chapters live in `content/reference/` by subject. Each chapter supplies bilingual mechanism/decision text and at least two additional code examples with explicit languages and execution/integration labels. Run `node scripts/reference-manifest.mjs` after adding a canonical chapter. Update a module's context, references, or practice as needed. Run the content integrity check and relevant browser tests after edits. New true execution runtimes should be implemented as an explicit separate feature rather than presented as if a teaching simulation were a compiler.
 
 Font packages include their upstream open-font license files; dependencies retain their respective licenses.
+
+## ASP.NET Core backend track
+
+The Backend Engineering module (module 08) includes 18 hands-on ASP.NET Core lessons
+(lessons 21–38): Web API setup, EF Core, controllers, DI, DTOs, a generic response model,
+password hashing, CRUD, JWT, role-based and policy authorization, MVC with Razor,
+JWT-in-cookie and built-in cookie authentication, CSRF, global error handling and
+refresh tokens. Content lives in `src/content/aspnetConcepts.js` and
+`src/content/reference/aspnet*.js`.
+
+Pushing to `main` deploys to https://dotnet-mastery.vercel.app automatically.
