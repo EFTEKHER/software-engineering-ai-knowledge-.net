@@ -36,3 +36,17 @@ export function file(language, title, code, expectedOutput, kind = "Ready-to-use
 export function sql(title, code, expectedOutput) {
   return { title, kind: "Executable SQLite example", language: "sql", code, expectedOutput };
 }
+
+/** Plain-Python example (standard library only) that runs in the in-site Sandbox. */
+export function py(title, code, expectedOutput) {
+  return {
+    title,
+    kind: "Python example (runs in Sandbox)",
+    language: "python",
+    setupEn: "Press Try to open it in the Sandbox and click Run, or save it as example.py and run python3 example.py. It only uses the standard library, so no installs are needed.",
+    setupBn: "Sandbox-এ খুলতে Try চাপুন এবং Run ক্লিক করুন, অথবা example.py নামে রেখে python3 example.py চালান। এটি শুধু standard library ব্যবহার করে, তাই কিছু install করতে হয় না।",
+    commands: "python3 example.py",
+    code,
+    expectedOutput,
+  };
+}
