@@ -6,6 +6,13 @@ const shellSetupEn =
 const shellSetupBn =
   "নিরাপদ অনুশীলনের folder-এ (বা ফেলে দেওয়া VM/container-এ) এই command চালান। # দিয়ে শুরু লাইন মন্তব্য। আপনার terminal-এর ফল প্রত্যাশিত ফলের সাথে মিলিয়ে দেখুন।";
 
+// Short snippets get a heading comment (and padding) so every example has context.
+function withHeader(code, title, comment = "#") {
+  const lines = [`${comment} ${title.split(" · ")[0]}`, ...code.split("\n")];
+  while (lines.length < 4) lines.splice(1, 0, `${comment} Run the lines below one at a time and compare with the expected output.`);
+  return lines.join("\n");
+}
+
 /** Shell walkthrough with the output a learner should see. */
 export function sh(title, code, expectedOutput) {
   return {
@@ -15,7 +22,7 @@ export function sh(title, code, expectedOutput) {
     setupEn: shellSetupEn,
     setupBn: shellSetupBn,
     commands: "# Practice folder\nmkdir -p ~/practice && cd ~/practice",
-    code,
+    code: code.split("\n").length < 4 ? withHeader(code, title) : code,
     expectedOutput,
   };
 }
