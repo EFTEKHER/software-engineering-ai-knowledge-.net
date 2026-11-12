@@ -566,6 +566,13 @@ function App() {
             <span className="footer-tag">
               <span className="live-dot" /> LEARNING IS A SUPERPOWER
             </span>
+            <div className="footer-credit">
+              <span>Created by</span>
+              <strong>Eftekher Ali Efte</strong>
+              <span className="footer-credit-meta">
+                CSE, RUET · Software Engineer at National Bank PLC · Ex-Notre Damian
+              </span>
+            </div>
           </footer>
         </main>
       </div>

@@ -21,6 +21,24 @@ const loaders = {
   16: () => import("./m16"),
 };
 
+// One more runnable example per topic, kept in ./more so each module loads it on demand.
+const moreLoaders = {
+  0: () => import("./more/m00"),
+  1: () => import("./more/m01"),
+  2: () => import("./more/m02"),
+  3: () => import("./more/m03"),
+  4: () => import("./more/m04"),
+  6: () => import("./more/m06"),
+  8: () => import("./more/m08"),
+  9: () => import("./more/m09"),
+  10: () => import("./more/m10"),
+  11: () => import("./more/m11"),
+  12: () => import("./more/m12"),
+  13: () => import("./more/m13"),
+  14: () => import("./more/m14"),
+  15: () => import("./more/m15"),
+};
+
 const titles = {
   story: "Simple story first · আগে একটি সহজ গল্প",
   theory: "Theory in plain words · সহজ ভাষায় তত্ত্ব",
@@ -41,6 +59,10 @@ export async function enrichModule(lesson, chapter) {
   }
   const x = data[lesson.topic];
   if (!x) return chapter;
+  let more = [];
+  try {
+    if (moreLoaders[lesson.module.id]) more = (await moreLoaders[lesson.module.id]()).default[lesson.topic] || [];
+  } catch {}
   const sections = [
     { id: "easy-story", toc: "Easy story", title: titles.story, en: x.s[0], bn: x.s[1] },
     { id: "simple-theory", toc: "Plain theory", title: titles.theory, en: x.t[0], bn: x.t[1] },
@@ -59,6 +81,6 @@ export async function enrichModule(lesson, chapter) {
   return {
     ...chapter,
     extraSections: [...(chapter.extraSections || []), ...sections],
-    examples: [...(x.x || []), ...chapter.examples],
+    examples: [...(x.x || []), ...more, ...chapter.examples],
   };
 }
