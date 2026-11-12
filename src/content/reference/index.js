@@ -87,6 +87,11 @@ export async function loadChapter(lesson) {
         ...chapter.examples,
       ],
     };
+  } else if (m === 16) {
+    const { default: ai2028 } = await import("./ai2028");
+    const found = ai2028[lesson.topic];
+    if (!found) throw new Error("Missing chapter ai2028:" + lesson.topic);
+    chapter = { ...found, group: "ai2028", canonicalKey: lesson.topic };
   } else if (m === 7 && lesson.aspnet) {
     const { buildAspnetChapter } = await import("./aspnet");
     chapter = buildAspnetChapter(lesson);
@@ -110,6 +115,10 @@ export async function loadChapter(lesson) {
   if (m === 5) {
     const { enhanceBackendDevelopment } = await import("./backendDevelopment");
     chapter = enhanceBackendDevelopment(lesson, chapter);
+  }
+  if (m !== 5 && m !== 7) {
+    const { enrichModule } = await import("./enrich/index");
+    chapter = await enrichModule(lesson, chapter);
   }
   chapter = {
     ...chapter,

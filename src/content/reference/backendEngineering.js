@@ -777,7 +777,7 @@ if (root.GetProperty("amountMinor").GetInt32() != 6000) throw new Exception("Uni
 if (root.GetProperty("currency").GetString() != "BDT") throw new Exception("Currency changed");
 Console.WriteLine("All checks passed");
 // Consumer contract tests detect accidental field/meaning changes.`,
-  "JSON with Id=42, Quantity=3, Total=60 and Currency=BDT; then invalid_quantity",
+  '{"Id":42,"Quantity":3,"Total":60,"Currency":"BDT"}\ninvalid_quantity',
   {
     tryRequest:
       'POST /orders with {"quantity":3}; then GET the URL in Location',

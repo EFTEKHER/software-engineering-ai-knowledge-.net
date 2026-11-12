@@ -40,7 +40,7 @@ using Microsoft.IdentityModel.Tokens;
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("learning-only-key-that-is-32-bytes-long!!"));
 var token = new JwtSecurityToken(
     issuer: "MyFirstApi", audience: "MyFirstApiClients",
-    claims: new[] { new Claim(ClaimTypes.Email, "asha@example.com"), new Claim(ClaimTypes.Role, "Admin") },
+    claims: new[] { new Claim("email", "asha@example.com"), new Claim("role", "Admin") },   // short JWT claim names
     expires: DateTime.UtcNow.AddMinutes(30),
     signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
 string jwt = new JwtSecurityTokenHandler().WriteToken(token);
@@ -48,7 +48,7 @@ string jwt = new JwtSecurityTokenHandler().WriteToken(token);
 Console.WriteLine($"Parts: {jwt.Split('.').Length}");
 var read = new JwtSecurityTokenHandler().ReadJwtToken(jwt);   // decoding needs no key!
 Console.WriteLine($"Algorithm: {read.Header.Alg}");
-Console.WriteLine($"Role claim: {read.Claims.First(c => c.Type == "role").Value}");   // short name inside the payload`,
+Console.WriteLine($"Role claim: {read.Claims.First(c => c.Type == "role").Value}");   // same short name inside the payload`,
         "Parts: 3\nAlgorithm: HS256\nRole claim: Admin",
         ["System.IdentityModel.Tokens.Jwt"],
       ),

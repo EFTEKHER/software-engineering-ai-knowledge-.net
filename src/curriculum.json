@@ -464,5 +464,33 @@
       "Observability and Tracing",
       "Fine-Tuning with LoRA"
     ]
+  },
+  {
+    "id": 16,
+    "title": "AI Engineering 2028",
+    "description": "Ship real AI features in .NET: AI-assisted coding, IChatClient, tools, MCP, RAG, agents, evals, cost and safety.",
+    "stage": 3,
+    "topics": [
+      "AI-Assisted Coding Workflow",
+      "Spec-Driven Development",
+      "IChatClient in .NET",
+      "Streaming AI Responses",
+      "Function Calling in C#",
+      "Build an MCP Server in C#",
+      "Embeddings and Vector Search in .NET",
+      "Hybrid Search",
+      "Semantic Caching",
+      "Agent Workflows in .NET",
+      "Human-in-the-Loop Approvals",
+      "Evaluating LLM Apps",
+      "Prompt Versioning and LLMOps",
+      "AI Cost and Latency Budgets",
+      "AI Security and Data Privacy",
+      "Local Models with Ollama",
+      "Multimodal Inputs",
+      "AI Observability with OpenTelemetry",
+      "Testing AI Features",
+      "Capstone: AI Support Assistant"
+    ]
   }
 ]

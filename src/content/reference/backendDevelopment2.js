@@ -810,7 +810,7 @@ var log = factory.CreateLogger("Orders");
 log.LogDebug("This debug line is filtered out");
 log.LogInformation("Order {OrderId} paid by {Customer} amount {Amount}", 1042, "Asha", 1200);
 log.LogWarning("Stock low for {Item}: {Left} left", "Tea", 2);`,
-        '{"EventId":0,"LogLevel":"Information","Category":"Orders","Message":"Order 1042 paid by Asha amount 1200","State":{"Message":"Order 1042 paid by Asha amount 1200","OrderId":1042,"Customer":"Asha","Amount":1200,"{OriginalFormat}":"Order {OrderId} paid by {Customer} amount {Amount}"}}\n{"EventId":0,"LogLevel":"Warning","Category":"Orders","Message":"Stock low for Tea: 2 left","State":{"Message":"Stock low for Tea: 2 left","Item":"Tea","Left":2,"{OriginalFormat}":"Stock low for {Item}: {Left} left"}}',
+        '{"EventId":0,"LogLevel":"Information","Category":"Orders","Message":"Order 1042 paid by Asha amount 1200","State":{"OrderId":1042,"Customer":"Asha","Amount":1200,"{OriginalFormat}":"Order {OrderId} paid by {Customer} amount {Amount}"}}\n{"EventId":0,"LogLevel":"Warning","Category":"Orders","Message":"Stock low for Tea: 2 left","State":{"Item":"Tea","Left":2,"{OriginalFormat}":"Stock low for {Item}: {Left} left"}}',
         ["Microsoft.Extensions.Logging.Console"],
       ),
       webEx(

@@ -129,7 +129,7 @@ test("Bangla search opens the matching lesson", async ({ page }) => {
     .getByRole("button", { name: "Search anything... ⌘ K", exact: true })
     .click();
   await page
-    .getByPlaceholder("Search 320 concepts, commands, and modules...")
+    .getByPlaceholder(/Search \d+ concepts, commands, and modules/)
     .fill("অভিধানের");
   await expect(page.locator(".search-results")).toContainText("Binary Search");
   await page.locator(".search-results button").first().click();

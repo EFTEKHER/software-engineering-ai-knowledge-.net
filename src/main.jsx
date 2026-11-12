@@ -51,6 +51,7 @@ const LessonReader = lazy(() => import("./components/LessonReader"));
 const Notebook = lazy(() => import("./components/Notebook"));
 const PracticeLab = lazy(() => import("./components/PracticeLab"));
 const BeginnerGuide = lazy(() => import("./components/BeginnerGuide"));
+const Sandbox = lazy(() => import("./components/Sandbox"));
 const icons = [
   GitBranch,
   Terminal,
@@ -68,6 +69,7 @@ const icons = [
   Cloud,
   Workflow,
   BrainCircuit,
+  Sparkles,
 ];
 const stages = [
   "Foundations",
@@ -129,7 +131,18 @@ function App() {
         return [];
       }
     }),
-    [view, setView] = useState("grid");
+    [view, setView] = useState("grid"),
+    [sandboxKey, setSandboxKey] = useState(0);
+  useEffect(() => {
+    const go = () => {
+      setLesson(null);
+      setPage("Sandbox");
+      setSandboxKey((k) => k + 1);
+      window.scrollTo({ top: 0 });
+    };
+    window.addEventListener("open-sandbox", go);
+    return () => window.removeEventListener("open-sandbox", go);
+  }, []);
   useEffect(() => {
     try {
       localStorage.setItem("mastery-progress", JSON.stringify(done));
@@ -199,6 +212,7 @@ function App() {
             [BookOpen, "Beginner guide"],
             [Map, "Learning path"],
             [Code2, "Playground"],
+            [Terminal, "Sandbox"],
             [BookOpen, "My notebook"],
           ].map(([I, n]) => (
             <button
@@ -212,8 +226,8 @@ function App() {
             >
               <I size={18} />
               {n}
-              {n === "Learning path" && <span className="tiny">16</span>}
-              {n === "Playground" && <span className="new">NEW</span>}
+              {n === "Learning path" && <span className="tiny">{modules.length}</span>}
+              {n === "Sandbox" && <span className="new">NEW</span>}
             </button>
           ))}
         </nav>
@@ -295,6 +309,7 @@ function App() {
             ["Learning path", "Roadmap"],
             ["Beginner guide", "Start here"],
             ["Playground", "Lab"],
+            ["Sandbox", "Run code"],
             ["My notebook", "Notes"],
           ].map(([p, n]) => (
             <button
@@ -323,6 +338,8 @@ function App() {
                   "Your knowledge, connected."
                 ) : page === "Playground" ? (
                   "Learn it. Then build it."
+                ) : page === "Sandbox" ? (
+                  "Write it. Run it. Own it."
                 ) : page === "Overview" ? (
                   "Small steps. Real progress."
                 ) : (
@@ -363,7 +380,7 @@ function App() {
           </section>
           <div className="stats">
             {[
-              [Layers, "16", "in-depth modules"],
+              [Layers, String(modules.length), "in-depth modules"],
               [Code2, String(allLessons.length), "concepts to explore"],
               [Target, "3", "levels of mastery"],
               [GitBranch, "One", "connected learning path"],
@@ -428,6 +445,8 @@ function App() {
             <BeginnerGuide lang={lang} />
           ) : page === "Playground" ? (
             <PracticeLab lang={lang} />
+          ) : page === "Sandbox" ? (
+            <Sandbox key={sandboxKey} lang={lang} />
           ) : page === "My notebook" ? (
             <Notebook onOpen={open} />
           ) : (
@@ -464,7 +483,7 @@ function App() {
                     className={stage === -1 ? "selected" : ""}
                     onClick={() => setStage(-1)}
                   >
-                    All stages <span>16</span>
+                    All stages <span>{modules.length}</span>
                   </button>
                   {stages.map((s, i) => (
                     <button
