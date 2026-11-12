@@ -7,7 +7,7 @@
     "build": "vite build",
     "format": "prettier --write src index.html vercel.json package.json README.md",
     "test": "node scripts/check-content.mjs && node scripts/check-sql.mjs && playwright test",
-    "prebuild": "node scripts/reference-manifest.mjs && node scripts/package-source.mjs",
+    "prebuild": "node scripts/reference-manifest.mjs",
     "test:content": "node scripts/check-content.mjs",
     "test:csharp": "node scripts/check-csharp.mjs",
     "test:sql": "node scripts/check-sql.mjs"

@@ -12,7 +12,6 @@ import {
   Lightbulb,
   AlertTriangle,
   HelpCircle,
-  Download,
   ArrowUp,
 } from "lucide-react";
 import { getLesson } from "../content/lessons";
@@ -178,14 +177,6 @@ export default function LessonReader({
               {i === l.index && <ChevronRight size={13} />}
             </button>
           ))}
-          <a
-            className="source-download"
-            href="/dotnet-mastery-react.zip"
-            download
-          >
-            <Download size={14} />
-            Download full React project
-          </a>
         </nav>
         <article className="lesson-content">
           <div className="eyebrow">

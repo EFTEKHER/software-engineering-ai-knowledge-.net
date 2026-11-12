@@ -556,13 +556,6 @@ function App() {
             <span>
               Built for curious minds. Made for real-world engineering.
             </span>
-            <a
-              className="download-source"
-              href="/dotnet-mastery-react.zip"
-              download
-            >
-              Download React project ↗
-            </a>
             <span className="footer-tag">
               <span className="live-dot" /> LEARNING IS A SUPERPOWER
             </span>

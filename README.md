@@ -73,7 +73,6 @@ src/
   style.css                 Workspace design system
 scripts/
   check-content.mjs         Completeness and bilingual-content checks
-  package-source.mjs        Deterministic source bundle generator
  tests/
   learning.spec.js          End-to-end learning-flow tests
 ```
