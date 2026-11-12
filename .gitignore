@@ -4,3 +4,4 @@ work/
 playwright-report/
 .vercel/
 .env*
+public/sql-wasm.wasm
