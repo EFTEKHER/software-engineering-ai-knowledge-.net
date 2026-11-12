@@ -1,0 +1,7 @@
+node_modules/
+dist/
+work/
+public/dotnet-mastery-react.zip
+playwright-report/
+.vercel/
+.env*

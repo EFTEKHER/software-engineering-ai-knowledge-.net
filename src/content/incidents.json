@@ -1,0 +1,122 @@
+[
+  {
+    "problem": "Slow APIs",
+    "solution": "Profile first, fix the bottleneck",
+    "bn": "অন্ধকারে অনুমান না করে আগে খুঁজে বের করুন কোথায় সময় নষ্ট হচ্ছে",
+    "implementation": "Use `dotnet-trace`, OpenTelemetry spans, and `BenchmarkDotNet` to pinpoint CPU vs I/O wait"
+  },
+  {
+    "problem": "Slow queries",
+    "solution": "Add indexes",
+    "bn": "বইয়ের সূচিপত্র (Index) থাকলে যেমন পাতা উল্টে খুঁজতে হয় না",
+    "implementation": "Add composite/covering indexes in EF Core (`HasIndex`), inspect `EXPLAIN ANALYZE`, avoid N+1 queries"
+  },
+  {
+    "problem": "Slow reads",
+    "solution": "Add a cache",
+    "bn": "বারবার গোডাউনে না গিয়ে হাতের কাছে ডেটা রাখা",
+    "implementation": "Use `.NET 9 HybridCache` (L1 Memory + L2 Redis) with Cache-Aside and TTL jitter"
+  },
+  {
+    "problem": "Slow file loads",
+    "solution": "Object storage + CDN",
+    "bn": "ভারী ছবি/ভিডিও ইউজারের সবচেয়ে কাছের সার্ভার থেকে দেওয়া",
+    "implementation": "Offload static assets to AWS S3 + CloudFront CDN instead of serving through Kestrel"
+  },
+  {
+    "problem": "Growing traffic",
+    "solution": "Scale horizontally",
+    "bn": "একটি বড় দোকানের বদলে ১০টি কাউন্টার খোলা",
+    "implementation": "Make ASP.NET Core stateless and scale out replicas via Kubernetes Horizontal Pod Autoscaler"
+  },
+  {
+    "problem": "Too much traffic",
+    "solution": "Add a load balancer",
+    "bn": "ট্রাফিক পুলিশ যেমন সব রাস্তায় সমানভাবে গাড়ি ভাগ করে দেয়",
+    "implementation": "Place AWS ALB / Nginx / YARP in front of API instances with active health checks"
+  },
+  {
+    "problem": "Too many requests",
+    "solution": "Implement rate limiting",
+    "bn": "একজন মানুষ যেন সব টিকেট একা না কিনতে পারে তার সীমা বাঁধা",
+    "implementation": "Configure ASP.NET Core `AddRateLimiter` (Sliding Window / Token Bucket per User/IP)"
+  },
+  {
+    "problem": "Read-heavy DB",
+    "solution": "Add read replicas",
+    "bn": "লেখার জন্য ১টি খাতা, কিন্তু পড়ার জন্য তার একাধিক ফটোকপি রাখা",
+    "implementation": "Route write commands to Primary DB and `AsNoTracking()` read queries to Read Replicas"
+  },
+  {
+    "problem": "Write-heavy DB",
+    "solution": "Shard the database",
+    "bn": "একটি খাতায় সব নাম না লিখে অক্ষর অনুযায়ী আলাদা খাতায় ভাগ করা",
+    "implementation": "Partition data horizontally across shards by `TenantId` or `UserId` hash"
+  },
+  {
+    "problem": "Large payloads / high bandwidth",
+    "solution": "Compress & paginate responses",
+    "bn": "পুরো ট্রাক না পাঠিয়ে ছোট ছোট প্যাকেটে সংকুচিত করে পাঠানো",
+    "implementation": "Enable ASP.NET Core `UseResponseCompression` (Brotli/Gzip) + Keyset Pagination"
+  },
+  {
+    "problem": "Long-running tasks",
+    "solution": "Use asynchronous processing",
+    "bn": "অর্ডার নিয়ে টোকেন দিয়ে দেওয়া, পেছনে রান্না হতে থাকা",
+    "implementation": "Push job to `System.Threading.Channels` or RabbitMQ/SQS; return `202 Accepted` immediately"
+  },
+  {
+    "problem": "Temporary failures",
+    "solution": "Retry with backoff + jitter",
+    "bn": "ফোনে না পেলে সাথে সাথে ১০০ বার না দিয়ে একটু বিরতি দিয়ে চেষ্টা করা",
+    "implementation": "Configure `Microsoft.Extensions.Http.Resilience` / Polly exponential backoff with random jitter"
+  },
+  {
+    "problem": "Duplicate requests",
+    "solution": "Use idempotency keys",
+    "bn": "দুইবার পেমেন্ট বাটনে চাপ পড়লেও যেন একবারই টাকা কাটে",
+    "implementation": "Require `Idempotency-Key` header and store atomic request state in Redis before processing"
+  },
+  {
+    "problem": "Failing services",
+    "solution": "Introduce a circuit breaker",
+    "bn": "শর্ট সার্কিট হলে মেইন সুইচ বন্ধ করে পুরো বাড়ি বাঁচানো",
+    "implementation": "Use Polly Circuit Breaker to fail fast when a downstream dependency is unhealthy"
+  },
+  {
+    "problem": "Single point of failure",
+    "solution": "Add redundancy and failover",
+    "bn": "মেইন জেনারেটর নষ্ট হলে অটোমেটিক ব্যাকআপ জেনারেটর চালু হওয়া",
+    "implementation": "Deploy across multiple Availability Zones with automated DB failover and multi-instance services"
+  },
+  {
+    "problem": "Too many DB connections",
+    "solution": "Use connection pooling",
+    "bn": "প্রতিবার নতুন পাইপ না বসিয়ে আগের পাইপগুলোই ভাগাভাগি করে ব্যবহার করা",
+    "implementation": "Use `AddDbContextPool` in .NET alongside PgBouncer / RDS Proxy connection pooling"
+  },
+  {
+    "problem": "Slow search",
+    "solution": "Use a search index",
+    "bn": "ডাটাবেজে `LIKE '%text%'` না চালিয়ে ফুল-টেক্সট সার্চ ইঞ্জিন ব্যবহার করা",
+    "implementation": "Sync data to Elasticsearch, OpenSearch, or PostgreSQL `tsvector` inverted indexes"
+  },
+  {
+    "problem": "Users far away",
+    "solution": "Deploy to multiple regions",
+    "bn": "আমেরিকা ও বাংলাদেশের ইউজারের জন্য আলাদা দেশে সার্ভার রাখা",
+    "implementation": "Multi-region active-active deployment with Route 53 latency-based routing"
+  },
+  {
+    "problem": "Data loss risk",
+    "solution": "Backups and replication",
+    "bn": "মূল ফাইলের পাশাপাশি ক্লাউডে ও অন্য হার্ডডিস্কে কপি রাখা",
+    "implementation": "Automated snapshots, Point-in-Time Recovery (PITR), and cross-region replication"
+  },
+  {
+    "problem": "Production issues",
+    "solution": "Logs, metrics and distributed tracing",
+    "bn": "সিসিটিভি ক্যামেরা, ড্যাশবোর্ড মিটার এবং প্রতিটি রিকোয়েস্টের ফুটপ্রিন্ট রাখা",
+    "implementation": "Instrument .NET with OpenTelemetry -> Serilog (Logs) + Prometheus/Grafana (Metrics) + Jaeger (Traces)"
+  }
+]
