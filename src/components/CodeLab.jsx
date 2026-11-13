@@ -48,7 +48,8 @@ export default function CodeLab({ lesson, lang }) {
   const worker = useRef(null),
     timer = useRef(null),
     request = useRef(0);
-  const isSQL = lesson.module.id === 2;
+  const isSQL = lesson.module.id === 2 && lesson.lang === "sql";
+  const isTSQL = lesson.lang === "sql-reference" && lesson.module.id === 2;
   const en = lang !== "বাংলা",
     bn = lang !== "English";
   useEffect(() => {
@@ -301,6 +302,12 @@ export default function CodeLab({ lesson, lang }) {
               Simulate command
             </button>
           </>
+        ) : isTSQL ? (
+          <small>
+            <Database size={13} />
+            SQL Server (T-SQL) code · run it in SSMS. Scroll down for a version
+            you can run here. / SSMS-এ চালান; নিচে browser-এ চালানোর উদাহরণ আছে।
+          </small>
         ) : (
           <small>
             <BookOpen size={14} />

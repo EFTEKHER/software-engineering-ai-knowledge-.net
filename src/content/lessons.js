@@ -3,6 +3,7 @@ import { cli } from "./cli";
 import { sql } from "./sql";
 import { concepts } from "./concepts";
 import { aspnetConcepts } from "./aspnetConcepts";
+import { sqlServerConcepts } from "./sqlServerConcepts";
 import { ai2028Concepts } from "./ai2028Concepts";
 import { contexts } from "./context";
 import incidents from "./incidents.json";
@@ -199,6 +200,9 @@ export function getLesson(m, t) {
     };
     lang = "bash";
     output = outputs[m.id][t];
+  } else if (m.id === 2 && sqlServerConcepts[topic]) {
+    raw = sqlServerConcepts[topic];
+    lang = "sql-reference";
   } else if (m.id === 2) {
     const r = sql[t];
     raw = {
@@ -263,7 +267,7 @@ export function getLesson(m, t) {
   const lines = annotation(raw.code);
   const warningBn =
     cliWarnings[m.id]?.[t] ||
-    (m.id === 2
+    (m.id === 2 && !raw.sqlserver
       ? sqlWarnings[t]
       : banglaWarnings[topic] ||
         banglaWarnings[raw.related] ||
@@ -290,6 +294,11 @@ function docs(id, topic) {
     return [
       "GNU Coreutils manual",
       "https://www.gnu.org/software/coreutils/manual/coreutils.html",
+    ];
+  if (id === 2 && sqlServerConcepts[topic])
+    return [
+      "Microsoft Learn: Transact-SQL reference",
+      "https://learn.microsoft.com/sql/t-sql/language-reference",
     ];
   if (id === 2)
     return ["SQLite language reference", "https://www.sqlite.org/lang.html"];

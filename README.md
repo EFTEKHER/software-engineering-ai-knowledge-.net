@@ -115,3 +115,18 @@ refresh tokens. Content lives in `src/content/aspnetConcepts.js` and
 `src/content/reference/aspnet*.js`.
 
 Pushing to `main` deploys to https://dotnet-mastery.vercel.app automatically.
+
+## SQL Server (T-SQL) track
+
+The SQL & Databases module (module 03) adds 27 SQL Server lessons (lessons 21–47) that
+follow a basics-to-advanced course outline: SQL languages (DDL/DML/DQL/DCL/TCL),
+databases, data types, variables, CAST/CONVERT/TRY_CAST, constraints, keys, CRUD,
+table variables, temp tables, CTEs, NULL handling, aggregates, UNION, joins, string
+and date functions, ranking (Nth highest salary), clustered/non-clustered indexes,
+scalar and table-valued functions, transactions with TRY...CATCH, ACID, stored
+procedures, triggers with audit tables, Profiler/execution plans and FOR XML PATH + STUFF.
+
+Each lesson has English and Bangla theory, line-by-line annotated T-SQL, an easy story,
+full theory, steps, common mistakes, interview practice, a SQL Server script with its
+expected result, and a practice query that runs in the in-browser SQLite database.
+Content lives in `src/content/sqlServerConcepts.js` and `src/content/reference/sqlServer.js`.

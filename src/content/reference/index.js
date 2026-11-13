@@ -64,7 +64,10 @@ export async function loadChapter(lesson) {
   let chapter;
   if ([0, 1, 11, 12].includes(m))
     chapter = await retrieve("commands", `${m}-${t}`);
-  else if (m === 2) chapter = await retrieve("sql", t);
+  else if (m === 2 && lesson.sqlserver) {
+    const { buildSqlServerChapter } = await import("./sqlServer");
+    chapter = { ...buildSqlServerChapter(lesson), group: "sqlServer", canonicalKey: lesson.topic };
+  } else if (m === 2) chapter = await retrieve("sql", t);
   else if (m === 10) {
     const key = incidentKeys[t];
     chapter = await retrieve(groupFor(key), key);

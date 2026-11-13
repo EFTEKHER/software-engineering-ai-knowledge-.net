@@ -15,8 +15,8 @@ const { allLessons, loadChapter } = await import(
   "data:text/javascript;base64," +
     Buffer.from(result.outputFiles[0].text).toString("base64")
 );
-assert.equal(allLessons.length, 358);
-assert.equal(new Set(allLessons.map((l) => l.id)).size, 358);
+assert.equal(allLessons.length, 385);
+assert.equal(new Set(allLessons.map((l) => l.id)).size, 385);
 for (const lesson of allLessons) {
   assert.ok(
     lesson.en.length > 30,
@@ -41,7 +41,7 @@ for (const lesson of allLessons) {
 assert.match(allLessons.find((l) => l.id === "3-5").code, /while \(lo <= hi\)/);
 assert.equal(allLessons.find((l) => l.id === "13-13").lang, "csharp");
 console.log(
-  "PASS: 358 lessons; bilingual theory; all code lines annotated; diagrams, prerequisites, glossary, limitations and references present.",
+  "PASS: 385 lessons; bilingual theory; all code lines annotated; diagrams, prerequisites, glossary, limitations and references present.",
 );
 
 let exampleCount = 0,
