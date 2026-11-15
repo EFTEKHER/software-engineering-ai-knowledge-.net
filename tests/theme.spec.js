@@ -4,23 +4,23 @@ test("Theme toggle persists across refresh and lesson navigation", async ({
   page,
 }) => {
   await page.goto("/");
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await page
-    .getByRole("button", { name: "Switch to light mode", exact: true })
-    .click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page
+    .getByRole("button", { name: "Switch to dark mode", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   expect(
     await page
       .locator("html")
       .evaluate((el) => getComputedStyle(el).colorScheme),
-  ).toBe("light");
+  ).toBe("dark");
   await page.reload();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await page.goto("/#lesson/7/11");
   await expect(page.locator(".backend-reading-steps")).toBeAttached();
   const toggle = page
     .locator(".lesson-header")
-    .getByRole("button", { name: "Switch to dark mode", exact: true });
+    .getByRole("button", { name: "Switch to light mode", exact: true });
   await expect(toggle).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(toggle).toBeVisible();
@@ -31,9 +31,9 @@ test("Theme toggle persists across refresh and lesson navigation", async ({
   ).toBe(true);
   await toggle.focus();
   await page.keyboard.press("Enter");
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.reload();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
 test("Theme works when browser storage is unavailable", async ({ page }) => {
@@ -47,7 +47,7 @@ test("Theme works when browser storage is unavailable", async ({ page }) => {
   });
   await page.goto("/");
   await page
-    .getByRole("button", { name: "Switch to light mode", exact: true })
+    .getByRole("button", { name: "Switch to dark mode", exact: true })
     .click();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 });

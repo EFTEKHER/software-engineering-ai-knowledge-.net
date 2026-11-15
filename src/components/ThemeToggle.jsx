@@ -5,7 +5,7 @@ import "./theme.css";
 const ThemeContext = createContext(null);
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() =>
-    document.documentElement.dataset.theme === "light" ? "light" : "dark",
+    document.documentElement.dataset.theme === "dark" ? "dark" : "light",
   );
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
