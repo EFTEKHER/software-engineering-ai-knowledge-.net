@@ -35,6 +35,7 @@ import {
   Clock,
   Layers,
   ExternalLink,
+  Puzzle,
 } from "lucide-react";
 import ThemeToggle, { ThemeProvider } from "./components/ThemeToggle";
 import modules from "./curriculum.json";
@@ -52,6 +53,7 @@ const Notebook = lazy(() => import("./components/Notebook"));
 const PracticeLab = lazy(() => import("./components/PracticeLab"));
 const BeginnerGuide = lazy(() => import("./components/BeginnerGuide"));
 const Sandbox = lazy(() => import("./components/Sandbox"));
+const DsaPatterns = lazy(() => import("./components/dsa/DsaPatterns"));
 const icons = [
   GitBranch,
   Terminal,
@@ -100,7 +102,11 @@ function useLessonRoute() {
   return [value, update];
 }
 function App() {
-  const [page, setPage] = useState("Learning path"),
+  const [page, setPage] = useState(() =>
+      window.location.hash.startsWith("#dsa")
+        ? "DSA Patterns"
+        : "Learning path",
+    ),
     [stage, setStage] = useState(-1),
     [level, setLevel] = useState("All levels"),
     [lang, setLang] = useState(() => {
@@ -142,6 +148,16 @@ function App() {
     };
     window.addEventListener("open-sandbox", go);
     return () => window.removeEventListener("open-sandbox", go);
+  }, []);
+  useEffect(() => {
+    const toDsa = () => {
+      if (window.location.hash.startsWith("#dsa")) {
+        setPage("DSA Patterns");
+        setStage(-1);
+      }
+    };
+    window.addEventListener("hashchange", toDsa);
+    return () => window.removeEventListener("hashchange", toDsa);
   }, []);
   useEffect(() => {
     try {
@@ -211,6 +227,7 @@ function App() {
             [LayoutDashboard, "Overview"],
             [BookOpen, "Beginner guide"],
             [Map, "Learning path"],
+            [Puzzle, "DSA Patterns"],
             [Code2, "Playground"],
             [Terminal, "Sandbox"],
             [BookOpen, "My notebook"],
@@ -226,7 +243,10 @@ function App() {
             >
               <I size={18} />
               {n}
-              {n === "Learning path" && <span className="tiny">{modules.length}</span>}
+              {n === "Learning path" && (
+                <span className="tiny">{modules.length}</span>
+              )}
+              {n === "DSA Patterns" && <span className="new">30</span>}
               {n === "Sandbox" && <span className="new">NEW</span>}
             </button>
           ))}
@@ -308,6 +328,7 @@ function App() {
           {[
             ["Learning path", "Roadmap"],
             ["Beginner guide", "Start here"],
+            ["DSA Patterns", "DSA"],
             ["Playground", "Lab"],
             ["Sandbox", "Run code"],
             ["My notebook", "Notes"],
@@ -332,7 +353,11 @@ function App() {
           <section className="intro">
             <div>
               <h1>
-                {page === "Beginner guide" ? (
+                {page === "DSA Patterns" ? (
+                  <>
+                    Think in <em>patterns.</em>
+                  </>
+                ) : page === "Beginner guide" ? (
                   "Every expert started here."
                 ) : page === "My notebook" ? (
                   "Your knowledge, connected."
@@ -441,7 +466,9 @@ function App() {
               <small>No experience needed. Just curiosity.</small>
             </div>
           </section>
-          {page === "Beginner guide" ? (
+          {page === "DSA Patterns" ? (
+            <DsaPatterns lang={lang} />
+          ) : page === "Beginner guide" ? (
             <BeginnerGuide lang={lang} />
           ) : page === "Playground" ? (
             <PracticeLab lang={lang} />
@@ -563,7 +590,8 @@ function App() {
               <span>Created by</span>
               <strong>Eftekher Ali Efte</strong>
               <span className="footer-credit-meta">
-                CSE, RUET · Software Engineer at National Bank PLC · Ex-Notre Damian
+                CSE, RUET · Software Engineer at National Bank PLC · Ex-Notre
+                Damian
               </span>
             </div>
           </footer>
@@ -711,7 +739,11 @@ function ModuleSection({ title, index, items, done, open, level, view }) {
                 <i style={{ width: `${(n / m.topics.length) * 100}%` }} />
               </div>
               <div className="card-bottom">
-                <span>{n ? `${n}/${m.topics.length} completed` : "Ready when you are"}</span>
+                <span>
+                  {n
+                    ? `${n}/${m.topics.length} completed`
+                    : "Ready when you are"}
+                </span>
                 <button onClick={() => open(m)}>
                   {n ? "Continue module" : "Explore module"}
                   <ArrowRight size={14} />

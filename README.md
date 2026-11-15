@@ -25,6 +25,7 @@ npm run build
 - Expanded reference chapters for every topic: 720 additional code examples and roughly 5,650 added code lines across the curriculum, with topic-specific mechanics, decisions, edge cases, and bilingual explanations.
 - Chapter contents navigation, within-chapter text/code search, connected-topic links, copy/download controls, and Markdown chapter export.
 - Additional SQL examples run in the browser; C# LINQ companions include complete in-memory fixtures.
+- **DSA Patterns** page (`#dsa/<pattern>`): 30 patterns from Noob to Professional, each with a YouTube-style animated step-by-step walkthrough (play/pause, scrub, speed, captions, optional read-aloud), C# code that highlights the running line, Bangla + English explanations, recognition signals, complexity, common mistakes, interview follow-up questions, and the most-asked LeetCode problems with solved-tracking. `npm run test:dsa` runs every walkthrough and checks its answer.
 - An absolute-beginner C# guide explaining syntax, variables, types, conditions, loops, methods, objects, and async/cancellation.
 - Backend Engineering adds 60 complete C# examples across its 20 topics: console starters, ASP.NET Core/EF Core programs, and exercises with expected results. Each includes setup commands and beginner English/Bangla reading steps. These additions are isolated to module 7.
 - Topic-specific English and Bangla intuitions, module foundations, analogies, prerequisites, glossary, code-line explanations, limitations, exercises, model answers, and official references.
