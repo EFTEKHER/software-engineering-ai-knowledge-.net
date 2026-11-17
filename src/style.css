@@ -1775,3 +1775,9 @@ footer {
     background: var(--palette-16352a, #16352a);
   }
 }
+@media (max-width: 700px) {
+  .mobile-navigation {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}

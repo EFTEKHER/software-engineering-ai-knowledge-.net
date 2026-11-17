@@ -51,6 +51,7 @@ import { allLessons } from "./content/lessons";
 const LessonReader = lazy(() => import("./components/LessonReader"));
 const Notebook = lazy(() => import("./components/Notebook"));
 const PracticeLab = lazy(() => import("./components/PracticeLab"));
+const BankingGuide = lazy(() => import("./components/BankingGuide"));
 const BeginnerGuide = lazy(() => import("./components/BeginnerGuide"));
 const Sandbox = lazy(() => import("./components/Sandbox"));
 const DsaPatterns = lazy(() => import("./components/dsa/DsaPatterns"));
@@ -103,9 +104,11 @@ function useLessonRoute() {
 }
 function App() {
   const [page, setPage] = useState(() =>
-      window.location.hash.startsWith("#dsa")
-        ? "DSA Patterns"
-        : "Learning path",
+      window.location.hash.startsWith("#bank")
+        ? "Banking .NET"
+        : window.location.hash.startsWith("#dsa")
+          ? "DSA Patterns"
+          : "Learning path",
     ),
     [stage, setStage] = useState(-1),
     [level, setLevel] = useState("All levels"),
@@ -151,7 +154,10 @@ function App() {
   }, []);
   useEffect(() => {
     const toDsa = () => {
-      if (window.location.hash.startsWith("#dsa")) {
+      if (window.location.hash.startsWith("#bank")) {
+        setPage("Banking .NET");
+        setStage(-1);
+      } else if (window.location.hash.startsWith("#dsa")) {
         setPage("DSA Patterns");
         setStage(-1);
       }
@@ -226,6 +232,7 @@ function App() {
           {[
             [LayoutDashboard, "Overview"],
             [BookOpen, "Beginner guide"],
+            [Shield, "Banking .NET"],
             [Map, "Learning path"],
             [Puzzle, "DSA Patterns"],
             [Code2, "Playground"],
@@ -237,6 +244,13 @@ function App() {
               className={page === n ? "active" : ""}
               onClick={() => {
                 setPage(n);
+                if (n === "Banking .NET") window.location.hash = "bank";
+                else if (window.location.hash.startsWith("#bank"))
+                  window.history.replaceState(
+                    null,
+                    "",
+                    window.location.pathname,
+                  );
                 setStage(-1);
                 setQuery("");
               }}
@@ -328,6 +342,7 @@ function App() {
           {[
             ["Learning path", "Roadmap"],
             ["Beginner guide", "Start here"],
+            ["Banking .NET", "Banking"],
             ["DSA Patterns", "DSA"],
             ["Playground", "Lab"],
             ["Sandbox", "Run code"],
@@ -338,6 +353,13 @@ function App() {
               className={page === p ? "selected" : ""}
               onClick={() => {
                 setPage(p);
+                if (p === "Banking .NET") window.location.hash = "bank";
+                else if (window.location.hash.startsWith("#bank"))
+                  window.history.replaceState(
+                    null,
+                    "",
+                    window.location.pathname,
+                  );
                 setStage(-1);
                 setQuery("");
               }}
@@ -357,6 +379,8 @@ function App() {
                   <>
                     Think in <em>patterns.</em>
                   </>
+                ) : page === "Banking .NET" ? (
+                  "Your first banking release."
                 ) : page === "Beginner guide" ? (
                   "Every expert started here."
                 ) : page === "My notebook" ? (
@@ -468,6 +492,8 @@ function App() {
           </section>
           {page === "DSA Patterns" ? (
             <DsaPatterns lang={lang} />
+          ) : page === "Banking .NET" ? (
+            <BankingGuide lang={lang} />
           ) : page === "Beginner guide" ? (
             <BeginnerGuide lang={lang} />
           ) : page === "Playground" ? (
