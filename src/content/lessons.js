@@ -1,3 +1,4 @@
+import { studyConcepts } from "./study";
 import modules from "../curriculum.json";
 import { cli } from "./cli";
 import { sql } from "./sql";
@@ -235,6 +236,7 @@ export function getLesson(m, t) {
     };
   } else
     raw =
+      ([17, 18].includes(m.id) && studyConcepts[topic]) ||
       (m.id === 7 && aspnetConcepts[topic]) ||
       (m.id === 16 && ai2028Concepts[topic]) ||
       concepts[topic];
@@ -280,7 +282,7 @@ export function getLesson(m, t) {
     module: m,
     topic,
     index: t,
-    context: contexts[m.id],
+    context: contexts[m.id] || contexts[5],
     lang,
     lines,
     code: lines.map((x) => x.text).join("\n"),

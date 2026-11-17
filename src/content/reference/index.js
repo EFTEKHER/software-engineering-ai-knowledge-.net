@@ -62,11 +62,18 @@ export async function loadChapter(lesson) {
   const m = lesson.module.id,
     t = lesson.index;
   let chapter;
-  if ([0, 1, 11, 12].includes(m))
+  if (lesson.study) {
+    const { buildStudyChapter } = await import("../study");
+    chapter = buildStudyChapter(lesson);
+  } else if ([0, 1, 11, 12].includes(m))
     chapter = await retrieve("commands", `${m}-${t}`);
   else if (m === 2 && lesson.sqlserver) {
     const { buildSqlServerChapter } = await import("./sqlServer");
-    chapter = { ...buildSqlServerChapter(lesson), group: "sqlServer", canonicalKey: lesson.topic };
+    chapter = {
+      ...buildSqlServerChapter(lesson),
+      group: "sqlServer",
+      canonicalKey: lesson.topic,
+    };
   } else if (m === 2) chapter = await retrieve("sql", t);
   else if (m === 10) {
     const key = incidentKeys[t];
@@ -113,7 +120,10 @@ export async function loadChapter(lesson) {
   if (m === 7 && !lesson.aspnet) {
     const { enhanceBackendEngineering } = await import("./backendEngineering");
     const { enrichExisting } = await import("./aspnet");
-    chapter = enrichExisting(lesson, enhanceBackendEngineering(lesson, chapter));
+    chapter = enrichExisting(
+      lesson,
+      enhanceBackendEngineering(lesson, chapter),
+    );
   }
   if (m === 5) {
     const { enhanceBackendDevelopment } = await import("./backendDevelopment");

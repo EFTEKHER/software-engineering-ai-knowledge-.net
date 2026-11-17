@@ -1,0 +1,74 @@
+[
+  {
+    "topic": "Cancellation Tokens & Timeouts",
+    "en": "Cancellation is cooperative: pass the token through every asynchronous dependency. A timeout limits waiting but does not roll back an already committed side effect. Treat user cancellation separately from an unexpected failure.",
+    "bn": "CancellationToken দিয়ে কাজ বন্ধের অনুরোধ নিচের async method পর্যন্ত পাঠান। Timeout হলে আগে লেখা data নিজে থেকে মুছে যায় না।",
+    "code": "using var timeout = new CancellationTokenSource(TimeSpan.FromMilliseconds(20));\ntry\n{\n    await Task.Delay(1000, timeout.Token);\n    Console.WriteLine(\"Finished\");\n}\ncatch (OperationCanceledException) when (timeout.IsCancellationRequested)\n{\n    Console.WriteLine(\"Cancelled cooperatively\");\n}",
+    "caution": "Do not replace asynchronous I/O with Task.Run or block with .Result. Propagate HttpContext.RequestAborted in API handlers.",
+    "exercise": "Increase the timeout to two seconds and compare the result.",
+    "kind": "Console example"
+  },
+  {
+    "topic": "EF Core Optimistic Concurrency",
+    "en": "An optimistic concurrency token detects a stale update by including the original version in the UPDATE predicate. EF Core throws DbUpdateConcurrencyException when no row matches; reload and resolve the conflict instead of silently overwriting another user.",
+    "bn": "Version token দিয়ে পুরোনো data থেকে update ধরা যায়। Conflict হলে নতুন data পড়ে সিদ্ধান্ত নিন; অন্যের পরিবর্তন অন্ধভাবে লিখে দেবেন না।",
+    "code": "// SQL Server entity: configure Version with IsRowVersion().\n// Requires an injected DbContext and Microsoft.EntityFrameworkCore.\ntry\n{\n    await db.SaveChangesAsync(cancellationToken);\n}\ncatch (DbUpdateConcurrencyException)\n{\n    // Return HTTP 409 and ask the client to reload the resource.\n    throw;\n}",
+    "caution": "Reference fragment, not a standalone program. SQL Server rowversion is provider-specific; this version column is not a date or time.",
+    "exercise": "Describe how two editors changing the same row should resolve the conflict.",
+    "kind": "Reference example"
+  },
+  {
+    "topic": "Idempotency Keys & Safe Retries",
+    "en": "An idempotency key identifies a logical write operation across retries. Persist the key, request hash and result atomically with the side effect. A repeated key with a different payload should be rejected; retain results for a documented retry window.",
+    "bn": "একই request আবার এলে duplicate write ঠেকাতে idempotency key ব্যবহার করুন। Key, payload hash ও ফল একই transaction-এ রাখুন।",
+    "code": "// Database transaction pseudocode; implement with your database provider.\n// 1. Insert (tenantId, idempotencyKey, requestHash) under a unique constraint.\n// 2. If the key exists, compare the hash and return the recorded result.\n// 3. Apply the business write and record its result in the same transaction.\n// 4. Commit before responding; bound key retention with a documented policy.",
+    "caution": "A process-local dictionary is not sufficient across instances or restarts. Retrying a non-idempotent write can create duplicates.",
+    "exercise": "Explain what happens if the connection drops just after the transaction commits.",
+    "kind": "Reference example"
+  },
+  {
+    "topic": "Transactional Outbox & Inbox",
+    "en": "The outbox stores an event in the same database transaction as the business update. A worker publishes pending events and marks them sent. A crash can cause duplicate delivery, so consumers use a durable inbox or an idempotent operation.",
+    "bn": "Business update ও event একই transaction-এ outbox table-এ রাখুন। Worker publish করে। Duplicate event ঠেকাতে consumer-এ durable inbox রাখুন।",
+    "code": "// Producer transaction: save Order and OutboxMessage together.\n// Worker: read a bounded batch of unsent outbox rows.\n// Publish each event using its stable event identifier.\n// Mark it sent only after the broker acknowledges receipt.\n// Consumer: insert event ID in an inbox and apply effects atomically.",
+    "caution": "This is a design checklist, not executable messaging code. Broker acknowledgement and database commit are separate; assume at-least-once delivery.",
+    "exercise": "Walk through a worker crash after publish but before marking the row sent.",
+    "kind": "Reference example"
+  },
+  {
+    "topic": "Liveness, Readiness & Health Checks",
+    "en": "Liveness reports whether the process is alive; readiness reports whether it can serve traffic. Keep liveness independent of downstream services to avoid restart loops. Readiness may include a bounded database check and must not expose secrets.",
+    "bn": "Liveness process চলছে কি না দেখায়; readiness request নেওয়ার প্রস্তুতি দেখায়। Database failure-এ সব instance বারবার restart করাবেন না।",
+    "code": "var builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddHealthChecks();\nvar app = builder.Build();\napp.MapHealthChecks(\"/health/live\");\napp.MapGet(\"/\", () => \"Ready to learn\");\napp.Run();",
+    "caution": "Use dotnet new web for this example. AddHealthChecks alone checks process liveness; register explicit dependency checks before claiming database readiness.",
+    "exercise": "Add a separate readiness endpoint and describe its dependency timeout.",
+    "kind": "ASP.NET Core program"
+  },
+  {
+    "topic": "Configuration, Options & Secrets",
+    "en": "Configuration combines providers such as JSON and environment variables. Bind related settings to typed options and validate them at startup. Keep credentials outside source control and avoid logging values that contain tokens or connection passwords.",
+    "bn": "Configuration provider থেকে setting পড়ুন, startup-এ validate করুন। Password ও token source code বা log-এ রাখবেন না।",
+    "code": "var builder = WebApplication.CreateBuilder(args);\nvar region = builder.Configuration[\"App:Region\"];\nif (string.IsNullOrWhiteSpace(region))\n    throw new InvalidOperationException(\"Set App__Region before starting\");\nvar app = builder.Build();\napp.MapGet(\"/region\", () => Results.Ok(new { Region = region }));\napp.Run();",
+    "caution": "Use dotnet new web and set App__Region in the environment. This example deliberately fails startup when required configuration is missing.",
+    "exercise": "Start without App__Region, then set it and confirm startup succeeds.",
+    "kind": "ASP.NET Core program"
+  },
+  {
+    "topic": "Integration Tests with WebApplicationFactory",
+    "en": "WebApplicationFactory starts an ASP.NET Core application in a test host so tests exercise routing, middleware and response contracts. Use an isolated test database when verifying persistence. Mocking every dependency cannot prove SQL constraints or transactions.",
+    "bn": "WebApplicationFactory দিয়ে routing ও middleware-সহ API test করুন। Persistence পরীক্ষা করতে আলাদা test database ব্যবহার করুন।",
+    "code": "// In an xUnit test project referencing the API project:\n// Install Microsoft.AspNetCore.Mvc.Testing matching the target framework.\nusing var factory = new WebApplicationFactory<Program>();\nusing var client = factory.CreateClient();\nusing var response = await client.GetAsync(\"/health/live\");\nAssert.Equal(HttpStatusCode.OK, response.StatusCode);\n// Expose public partial class Program in the API for test discovery.",
+    "caution": "Reference test fragment: requires xUnit, suitable using directives, a project reference and an accessible Program class. Never point integration tests at production data.",
+    "exercise": "Test a validation failure and verify both the HTTP result and database state.",
+    "kind": "Reference example"
+  },
+  {
+    "topic": "Keyset Pagination & Stable Ordering",
+    "en": "Keyset pagination selects records after the last observed sort key rather than skipping an increasing offset. Order by a unique stable key, use a matching index and cap the page size. Composite ordering requires a cursor containing every ordering component.",
+    "bn": "বড় offset বাদ দিয়ে শেষ দেখা key-এর পরের row নিন। স্থির unique ordering, উপযুক্ত index ও page size limit রাখুন।",
+    "code": "int[] ids = [2, 5, 8, 12, 18];\nint after = 5;\nint pageSize = 2;\nvar page = ids.Where(id => id > after).OrderBy(id => id).Take(pageSize).ToArray();\nConsole.WriteLine(string.Join(\",\", page));\nConsole.WriteLine($\"Next cursor: {page.LastOrDefault()}\");",
+    "caution": "This console example demonstrates the selection rule. For EF Core apply Where, OrderBy and Take before ToListAsync; validate cursor values and handle an empty page without inventing a cursor.",
+    "exercise": "Insert a new lower ID between requests and compare keyset pagination with Skip.",
+    "kind": "Console example"
+  }
+]

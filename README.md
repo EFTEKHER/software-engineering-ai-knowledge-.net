@@ -131,3 +131,20 @@ Each lesson has English and Bangla theory, line-by-line annotated T-SQL, an easy
 full theory, steps, common mistakes, interview practice, a SQL Server script with its
 expected result, and a practice query that runs in the in-browser SQLite database.
 Content lives in `src/content/sqlServerConcepts.js` and `src/content/reference/sqlServer.js`.
+
+### C# Complete Study and backend production essentials
+
+The dedicated C# module (`#lesson/17/0`) contains the 29 topics from
+`CSharp_Clean_Complete_Study_Edition_Under_25MB.pdf`, plus 10 C# language topics
+for backend engineering. The PDF describes its code as corrected teaching
+reconstructions, not verified transcriptions of original screenshots. Original
+lecture page ranges are preserved as orientation aids. Website explanations are
+new English and Bangla teaching text; overload and class examples are adapted
+into valid standalone Program.cs layouts.
+
+The separate Backend Production Essentials module (`#lesson/18/0`) covers
+cancellation, optimistic concurrency, idempotency, transactional outbox/inbox,
+health checks, configuration, integration tests and keyset pagination. Reference
+fragments and architectural checklists are labeled separately from complete
+console and ASP.NET Core examples. File/input examples run locally and need the
+specified fixtures or interactive input.

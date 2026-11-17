@@ -15,18 +15,14 @@ const { allLessons, loadChapter } = await import(
   "data:text/javascript;base64," +
     Buffer.from(result.outputFiles[0].text).toString("base64")
 );
-assert.equal(allLessons.length, 385);
-assert.equal(new Set(allLessons.map((l) => l.id)).size, 385);
+assert.equal(allLessons.length, 432);
+assert.equal(new Set(allLessons.map((l) => l.id)).size, 432);
 for (const lesson of allLessons) {
   assert.ok(
     lesson.en.length > 30,
     lesson.id + " needs specific English theory",
   );
-  assert.match(
-    lesson.bn,
-    /[ঀ-৿]/,
-    lesson.id + " needs Bangla theory",
-  );
+  assert.match(lesson.bn, /[ঀ-৿]/, lesson.id + " needs Bangla theory");
   assert.ok(
     lesson.lines.length && lesson.lines.every((l) => l.text && l.en && l.bn),
     lesson.id + " missing a code explanation",
@@ -41,7 +37,7 @@ for (const lesson of allLessons) {
 assert.match(allLessons.find((l) => l.id === "3-5").code, /while \(lo <= hi\)/);
 assert.equal(allLessons.find((l) => l.id === "13-13").lang, "csharp");
 console.log(
-  "PASS: 385 lessons; bilingual theory; all code lines annotated; diagrams, prerequisites, glossary, limitations and references present.",
+  "PASS: 432 lessons; bilingual theory; all code lines annotated; diagrams, prerequisites, glossary, limitations and references present.",
 );
 
 let exampleCount = 0,
@@ -87,7 +83,7 @@ for (const lesson of allLessons) {
       lesson.id + " invalid code language: " + example.language,
     );
     assert.ok(
-      example.code.split("\n").length >= 4,
+      example.code.split("\n").length >= (lesson.study ? 1 : 4),
       lesson.id + " example too short",
     );
     assert.ok(

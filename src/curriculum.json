@@ -519,5 +519,68 @@
       "Testing AI Features",
       "Capstone: AI Support Assistant"
     ]
+  },
+  {
+    "id": 17,
+    "title": "C# Complete Study",
+    "description": "39 C# lessons: the complete 29-topic PDF study track plus 10 language skills for backend engineering, from async and generics to JSON and resource lifetimes.",
+    "stage": 0,
+    "topics": [
+      "Setup & first program",
+      "Write vs WriteLine",
+      "Reading keyboard input",
+      "Comments and syntax",
+      "C# value & reference types",
+      "Variables & assignments",
+      "Conversions & safe parsing",
+      "Arithmetic & comparison operators",
+      "if / else if / else",
+      "Loops: for, while, foreach",
+      "Functions / methods",
+      "void methods & scope",
+      "Method overloads",
+      "Lambda expressions",
+      "Delegates",
+      "Array",
+      "List<T>",
+      "Classes and objects",
+      "LINQ filtering: Where",
+      "LINQ projection: Select",
+      "LINQ ordering",
+      "FirstOrDefault & null checks",
+      "Exceptions: try / catch",
+      "Indexing & bounds",
+      "Span<T> and memory views",
+      "Files: ReadAllText",
+      "Writing files",
+      "StreamReader & async reading",
+      "Command-line arguments",
+      "Async / Await & Task",
+      "Nullable Reference Types",
+      "Generics & Type Constraints",
+      "Records, Init & Immutable DTOs",
+      "Dictionary & HashSet for Lookups",
+      "IDisposable, Using & Resource Lifetime",
+      "Pattern Matching & Switch Expressions",
+      "System.Text.Json & API Contracts",
+      "DateTimeOffset, UTC & TimeProvider",
+      "IEnumerable vs IQueryable & Deferred Execution"
+    ]
+  },
+  {
+    "id": 18,
+    "title": "Backend Production Essentials",
+    "description": "Close the gap between a working API and a dependable service: cancellation, concurrency, safe retries, outbox delivery, health checks, configuration and tests.",
+    "stage": 1,
+    "topics": [
+      "Cancellation Tokens & Timeouts",
+      "EF Core Optimistic Concurrency",
+      "Idempotency Keys & Safe Retries",
+      "Transactional Outbox & Inbox",
+      "Liveness, Readiness & Health Checks",
+      "Configuration, Options & Secrets",
+      "Integration Tests with WebApplicationFactory",
+      "Keyset Pagination & Stable Ordering"
+    ]
   }
 ]

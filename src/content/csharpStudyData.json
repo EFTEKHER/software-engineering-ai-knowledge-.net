@@ -1,0 +1,314 @@
+[
+  {
+    "topic": "Setup & first program",
+    "en": "The SDK builds a console application and the runtime executes it. Console.WriteLine writes a greeting to standard output. Create a console project, edit Program.cs, and run dotnet run.",
+    "bn": "SDK কোড compile করে, runtime চালায়। Console.WriteLine পর্দায় লেখা দেখিয়ে নতুন লাইন শুরু করে।",
+    "code": "Console.WriteLine(\"Hello, World!\");",
+    "output": "Hello, World!",
+    "pages": "1–18"
+  },
+  {
+    "topic": "Write vs WriteLine",
+    "en": "Console.Write leaves the cursor on the same line. Console.WriteLine appends a line terminator. Combine them to print a prompt followed by a response without unwanted line breaks.",
+    "bn": "Write একই লাইনে লেখে; WriteLine শেষে নতুন লাইন যোগ করে। Prompt ও উত্তর সাজাতে দুটো ব্যবহার করুন।",
+    "code": "Console.Write(\"Hello \");\nConsole.WriteLine(\"Rohan\");\nConsole.WriteLine(\"Welcome!\");",
+    "output": "Hello Rohan\n  Welcome!",
+    "pages": "10–18"
+  },
+  {
+    "topic": "Reading keyboard input",
+    "en": "Console.ReadLine returns the next input line as a nullable string. End of input can return null. Keep text input separate from validation and conversion before using it in calculations.",
+    "bn": "ReadLine লেখা string হিসেবে পড়ে। ইনপুট শেষ হলে null আসতে পারে, তাই ব্যবহারের আগে পরীক্ষা করুন।",
+    "code": "Console.Write(\"Enter your name: \");\nstring? name = Console.ReadLine();\nConsole.WriteLine($\"Hi, {name}!\");",
+    "output": "Enter your name: Rohan\n  Hi, Rohan!",
+    "pages": "19–29"
+  },
+  {
+    "topic": "Comments and syntax",
+    "en": "Comments explain intent and are ignored by the compiler. A semicolon terminates most statements. Braces delimit blocks, and the compiler checks syntax before executing the program.",
+    "bn": "Comment compiler চালায় না। Semicolon statement শেষ করে, brace দিয়ে block তৈরি হয়।",
+    "code": "// This is a comment\nint age = 20;\n/* Two-line\ncomment */\nConsole.WriteLine(age);",
+    "output": "20",
+    "pages": "30–36"
+  },
+  {
+    "topic": "C# value & reference types",
+    "en": "Value types copy their values during assignment; reference types copy a reference to an object. Mutating a shared object differs from assigning a new object to a variable.",
+    "bn": "Value type assignment-এ মান copy হয়; reference type-এ object-এর reference copy হয়।",
+    "code": "int count = 5;\ndecimal salary = 12000m;\nbool isAdult = true;\nstring name = \"Rohan\";\nConsole.WriteLine($\"{name}: {salary}\");",
+    "output": "Rohan: 12000",
+    "pages": "30–61"
+  },
+  {
+    "topic": "Variables & assignments",
+    "en": "A variable binds a name to a typed value. Assignment changes that value. C# uses definite assignment to prevent reading an uninitialized local variable; var still has a compile-time type.",
+    "bn": "Variable-এর নির্দিষ্ট type থাকে। Assignment মান বদলায়; var ব্যবহার করলেও type compile-এর সময় নির্ধারিত।",
+    "code": "int number = 13;\nnumber = number + 2;\nvar city = \"Dhaka\";\nConsole.WriteLine($\"{number}, {city}\");",
+    "output": "15, Dhaka",
+    "pages": "55–80"
+  },
+  {
+    "topic": "Conversions & safe parsing",
+    "en": "Conversions move values between types. Parse can throw on invalid text, whereas TryParse reports success through a bool and returns the parsed result through an out parameter.",
+    "bn": "TryParse ভুল text পেলে exception না ছুড়ে false দেয়। সফল হলে out parameter-এ সংখ্যা পাওয়া যায়।",
+    "code": "Console.Write(\"Age: \");\nstring? text = Console.ReadLine();\nif (int.TryParse(text, out int age))\nConsole.WriteLine(age + 1);\nelse\nConsole.WriteLine(\"Invalid number\");",
+    "output": "Input 20 → 21",
+    "pages": "75–100"
+  },
+  {
+    "topic": "Arithmetic & comparison operators",
+    "en": "Arithmetic operators calculate values and comparison operators produce bool results. Integer division discards a fractional remainder. Parentheses make evaluation order explicit.",
+    "bn": "Arithmetic দিয়ে হিসাব হয়, comparison থেকে bool আসে। Integer division ভগ্নাংশ বাদ দেয়।",
+    "code": "int a = 10, b = 3;\nConsole.WriteLine(a / b);\nConsole.WriteLine(a % b);\nConsole.WriteLine(a > b);",
+    "output": "3\n  1\n  True",
+    "pages": "80–110"
+  },
+  {
+    "topic": "if / else if / else",
+    "en": "An if statement evaluates a Boolean condition and selects a branch. An else-if chain tests conditions in order; the first matching branch wins and else handles remaining inputs.",
+    "bn": "if শর্ত সত্য হলে block চালায়। else if ক্রমানুসারে পরীক্ষা হয়; কোনোটি না মিললে else চলে।",
+    "code": "int marks = 72;\nif (marks >= 80) Console.WriteLine(\"A+\");\nelse if (marks >= 60) Console.WriteLine(\"Pass\");\nelse Console.WriteLine(\"Try again\");",
+    "output": "Pass",
+    "pages": "84–110"
+  },
+  {
+    "topic": "Loops: for, while, foreach",
+    "en": "Use for for indexed repetition, while for a condition-controlled loop, and foreach to enumerate a collection. Ensure a loop makes progress and terminates for the intended input.",
+    "bn": "for index ধরে, while শর্ত ধরে এবং foreach collection-এর প্রতিটি item নিয়ে কাজ করে। Loop শেষ হওয়ার শর্ত রাখুন।",
+    "code": "for (int i = 1; i <= 3; i++)\n    Console.WriteLine(i);\nint remaining = 2;\nwhile (remaining > 0)\n    Console.WriteLine(remaining--);\nforeach (string name in new[] { \"Ana\", \"Rohan\" })\n    Console.WriteLine(name);",
+    "output": "1\n2\n3\n2\n1\nAna\nRohan",
+    "pages": "110–145"
+  },
+  {
+    "topic": "Functions / methods",
+    "en": "A method names a reusable operation with parameters and a return type. Arguments supply values at the call site. Small methods isolate calculations so they can be tested independently.",
+    "bn": "Method parameter নেয় ও return type অনুযায়ী ফল দেয়। ছোট method আলাদাভাবে পরীক্ষা করা সহজ।",
+    "code": "int Add(int a, int b)\n{\nreturn a + b;\n}\nConsole.WriteLine(Add(10, 20));",
+    "output": "30",
+    "pages": "145–210"
+  },
+  {
+    "topic": "void methods & scope",
+    "en": "A void method performs an operation without returning a value. Local variables belong to their declaring scope. Keep side effects explicit and avoid relying on hidden mutable state.",
+    "bn": "void method ফল ফেরায় না। Local variable নিজের scope-এর মধ্যে থাকে।",
+    "code": "void Greet(string person)\n{\nConsole.WriteLine($\"Hi {person}\");\n}\nGreet(\"Rohan\");",
+    "output": "Hi Rohan",
+    "pages": "170–245"
+  },
+  {
+    "topic": "Method overloads",
+    "en": "Overloads share a method name but have different parameter lists. The compiler selects an overload from argument types and counts. A return type alone cannot distinguish overloads.",
+    "bn": "একই নামের method-এর parameter আলাদা হলে overload হয়। শুধু return type বদলালে overload হয় না।",
+    "code": "Console.WriteLine(Calculator.Sum(2, 3));\nConsole.WriteLine(Calculator.Sum(2.5, 3.5));\nstatic class Calculator\n{\n    public static int Sum(int a, int b) => a + b;\n    public static double Sum(double a, double b) => a + b;\n}",
+    "output": "5\n6",
+    "pages": "190–270"
+  },
+  {
+    "topic": "Lambda expressions",
+    "en": "A lambda is an anonymous function written with the => operator. Parameters describe its input and the expression or block describes its result. Lambdas can capture variables from an outer scope.",
+    "bn": "Lambda হলো নামবিহীন function। => দিয়ে input ও কাজ আলাদা করা হয়; বাইরের variable capture করতে পারে।",
+    "code": "Func<int, int> square = x => x * x;\nConsole.WriteLine(square(5));",
+    "output": "25",
+    "pages": "285–325"
+  },
+  {
+    "topic": "Delegates",
+    "en": "A delegate is a typed reference to a method. Func represents a function returning a value and Action represents an operation returning void. Signatures must match when assigning a method.",
+    "bn": "Delegate method-এর typed reference। Func ফল দেয়, Action void কাজ করে।",
+    "code": "Func<int,int,int> add = (a,b) => a+b;\nConsole.WriteLine(add(4, 6));",
+    "output": "10",
+    "pages": "325–370"
+  },
+  {
+    "topic": "Array",
+    "en": "An array stores a fixed number of elements of one type and uses zero-based indexes. Length gives the number of elements. Valid indexes run from zero through Length minus one.",
+    "bn": "Array-এর দৈর্ঘ্য স্থির ও index শূন্য থেকে শুরু। শেষ index হলো Length থেকে এক কম।",
+    "code": "int[] nums = { 10, 20, 30 };\nConsole.WriteLine(nums[1]);\nConsole.WriteLine(nums.Length);",
+    "output": "20\n  3",
+    "pages": "390–430"
+  },
+  {
+    "topic": "List<T>",
+    "en": "List<T> is a resizable generic collection. Add appends an element and Count reports the current number of elements. Enumeration is useful when the exact number of items changes.",
+    "bn": "List<T>-এর আকার বদলানো যায়। Add দিয়ে item যোগ হয়, Count বর্তমান item সংখ্যা দেয়।",
+    "code": "List<int> nums = new() { 1, 2 };\nnums.Add(3);\nforeach (int n in nums) Console.WriteLine(n);",
+    "output": "1\n  2\n  3",
+    "pages": "410–455"
+  },
+  {
+    "topic": "Classes and objects",
+    "en": "A class defines state and behavior; an object is an instance of that class. Properties expose data and methods operate on it. Constructors establish valid initial state.",
+    "bn": "Class state ও behavior নির্ধারণ করে; object তার instance। Constructor প্রাথমিক অবস্থা ঠিক করে।",
+    "code": "var emp = new Employee { Name = \"Rohan\" };\nConsole.WriteLine(emp.Name);\nclass Employee\n{\n    public string Name { get; set; } = \"\";\n}",
+    "output": "Rohan",
+    "pages": "450–510"
+  },
+  {
+    "topic": "LINQ filtering: Where",
+    "en": "Where filters a sequence by a predicate without changing the source. Execution is usually deferred until enumeration. Materialize with ToList when you need a snapshot.",
+    "bn": "Where শর্ত মেলা item বেছে নেয়। সাধারণত enumerate করার সময় query চলে; ToList snapshot তৈরি করে।",
+    "code": "int[] numbers = { 1, 2, 3, 4, 5 };\nvar evens = numbers.Where(x => x % 2 == 0);\nConsole.WriteLine(string.Join(\", \", evens));",
+    "output": "2, 4",
+    "pages": "465–505"
+  },
+  {
+    "topic": "LINQ projection: Select",
+    "en": "Select projects each source element into a new shape or value. It differs from Where because it transforms elements rather than deciding which elements to keep.",
+    "bn": "Select প্রতিটি item থেকে নতুন মান বা shape বানায়। এটি filter না করে রূপান্তর করে।",
+    "code": "string[] names = { \"Ana\", \"Rohan\" };\nvar lengths = names.Select(n => n.Length);\nConsole.WriteLine(string.Join(\", \", lengths));",
+    "output": "3, 5",
+    "pages": "495–535"
+  },
+  {
+    "topic": "LINQ ordering",
+    "en": "OrderBy sorts by a key and ThenBy resolves ties. OrderByDescending reverses the primary direction. Specify a stable tie-breaker when using ordering for pagination.",
+    "bn": "OrderBy key অনুযায়ী সাজায়, ThenBy সমান key-এর ক্রম ঠিক করে। Pagination-এ unique tie-breaker রাখুন।",
+    "code": "int[] values = { 5, 1, 4 };\nvar sorted = values.OrderByDescending(x => x).ToList();\nConsole.WriteLine(string.Join(\", \", sorted));",
+    "output": "5, 4, 1",
+    "pages": "510–555"
+  },
+  {
+    "topic": "FirstOrDefault & null checks",
+    "en": "FirstOrDefault returns the first match or the type default if no match exists. For reference types that often means null. Check the result before dereferencing it.",
+    "bn": "FirstOrDefault মিল না পেলে default দেয়। Reference type-এ সাধারণত null, তাই property পড়ার আগে check করুন।",
+    "code": "string[] names = { \"Rohan\", \"Ana\" };\nstring? found = names.FirstOrDefault(x => x == \"Zara\");\nConsole.WriteLine(found ?? \"Not found\");",
+    "output": "Not found",
+    "pages": "545–700"
+  },
+  {
+    "topic": "Exceptions: try / catch",
+    "en": "Try/catch separates a normal path from failure handling. Catch exceptions you can handle meaningfully. Preserve useful diagnostics and avoid silently swallowing unexpected failures.",
+    "bn": "try/catch failure সামলায়। যে exception সত্যিই সামলাতে পারেন শুধু সেটি catch করুন; error চুপচাপ লুকাবেন না।",
+    "code": "try\n{\nint n = int.Parse(\"abc\");\nConsole.WriteLine(n);\n}\ncatch (FormatException)\n{\nConsole.WriteLine(\"Invalid number\");\n}",
+    "output": "Invalid number",
+    "pages": "585–715"
+  },
+  {
+    "topic": "Indexing & bounds",
+    "en": "Indexes must be within collection bounds. Check Length or Count before reading an element. A missing match and an invalid index are different conditions and need separate handling.",
+    "bn": "Index শূন্য বা তার বেশি এবং Length বা Count-এর কম হতে হবে। Missing item ও invalid index আলাদা সমস্যা।",
+    "code": "List<int> nums = new() { 10, 20 };\nint index = 1;\nif (index >= 0 && index < nums.Count)\nConsole.WriteLine(nums[index]);",
+    "output": "20",
+    "pages": "670–715"
+  },
+  {
+    "topic": "Span<T> and memory views",
+    "en": "Span<T> is a stack-only view over contiguous memory. Slicing produces another view rather than copying elements. A span cannot be stored in a normal class field or kept across an await.",
+    "bn": "Span<T> memory-এর view, copy নয়। Slice মূল data দেখায়; await-এর ওপারে span ধরে রাখা যায় না।",
+    "code": "int[] data = { 10, 20, 30 };\nSpan<int> view = data.AsSpan(1, 2);\nConsole.WriteLine(view[0]);",
+    "output": "20",
+    "pages": "760–790"
+  },
+  {
+    "topic": "Files: ReadAllText",
+    "en": "File.ReadAllText loads a complete text file into a string. Relative paths depend on the process working directory. Handle missing files and prefer streaming for large input.",
+    "bn": "ReadAllText পুরো file string-এ পড়ে। Relative path working directory অনুযায়ী হয়; বড় file stream করুন।",
+    "code": "string path = \"sample.txt\";\nif (File.Exists(path))\nConsole.WriteLine(File.ReadAllText(path));\nelse\nConsole.WriteLine(\"File not found\");",
+    "output": "Depends on sample.txt",
+    "pages": "810–850"
+  },
+  {
+    "topic": "Writing files",
+    "en": "File.WriteAllText replaces a file and File.AppendAllText adds text. Choose the intended overwrite behavior explicitly. Validate paths and use temporary files when practicing.",
+    "bn": "WriteAllText পুরোনো file বদলে দেয়; AppendAllText শেষে যোগ করে। আগে temporary file দিয়ে অনুশীলন করুন।",
+    "code": "string path = \"notes.txt\";\nFile.WriteAllText(path, \"Hello C#\");\nConsole.WriteLine(File.ReadAllText(path));",
+    "output": "Hello C#",
+    "pages": "830–875"
+  },
+  {
+    "topic": "StreamReader & async reading",
+    "en": "StreamReader reads text incrementally and supports asynchronous reads. A using declaration disposes the reader even when an exception occurs. Incremental processing avoids loading a whole file.",
+    "bn": "StreamReader অল্প করে text পড়ে; async read অপেক্ষার সময় thread আটকে রাখে না। using resource বন্ধ করে।",
+    "code": "using StreamReader sr = new(\"sample.txt\");\nwhile (!sr.EndOfStream)\n{\nstring? line = await sr.ReadLineAsync();\nConsole.WriteLine(line);\n}",
+    "output": "Depends on sample.txt",
+    "pages": "915–945"
+  },
+  {
+    "topic": "Command-line arguments",
+    "en": "Command-line arguments arrive in the args string array. Check its length before indexing and validate values before use. Shell quoting determines whether text becomes one or several arguments.",
+    "bn": "args array-এ command-line input থাকে। Index পড়ার আগে Length এবং ব্যবহারের আগে input validate করুন।",
+    "code": "if (args.Length > 0)\nConsole.WriteLine($\"Hi {args[0]}\");\nelse\nConsole.WriteLine(\"Pass your name\");",
+    "output": "dotnet run Rohan → Hi Rohan",
+    "pages": "960–995"
+  },
+  {
+    "topic": "Async / Await & Task",
+    "en": "An async method returns a Task representing completion. Await suspends the method while I/O is pending without blocking the caller thread. Await every operation whose errors or completion matter; async void is reserved for event handlers.",
+    "bn": "Task কাজ শেষ হওয়ার প্রতিশ্রুতি। await অপেক্ষার সময় thread আটকে রাখে না। async void সাধারণ service method-এ ব্যবহার করবেন না।",
+    "code": "Console.WriteLine(\"Starting\");\nint result = await LoadAsync();\nConsole.WriteLine(result);\nstatic async Task<int> LoadAsync()\n{\n    await Task.Delay(10);\n    return 42;\n}",
+    "caution": "Additional C# backend lesson. Examples use a .NET 8+ console project with implicit usings enabled; apply domain validation and test failure paths before using the pattern in an API.",
+    "exercise": "Explain how this feature affects an API request, then write one normal-case and one failure-case check."
+  },
+  {
+    "topic": "Nullable Reference Types",
+    "en": "Nullable annotations express whether a reference may be absent. Compiler flow analysis warns about unsafe dereferences, but annotations do not validate runtime input. Prefer explicit branches and meaningful defaults over the null-forgiving operator.",
+    "bn": "string? মান null হতে পারে। Compiler warning সাহায্য করে, কিন্তু runtime input validate করতেই হবে। ! দিয়ে warning ঢাকার বদলে null check করুন।",
+    "code": "#nullable enable\nstring? name = null;\nConsole.WriteLine(name?.Length ?? 0);\nname = \"Asha\";\nif (name is not null)\n    Console.WriteLine(name.ToUpperInvariant());",
+    "caution": "Additional C# backend lesson. Examples use a .NET 8+ console project with implicit usings enabled; apply domain validation and test failure paths before using the pattern in an API.",
+    "exercise": "Explain how this feature affects an API request, then write one normal-case and one failure-case check."
+  },
+  {
+    "topic": "Generics & Type Constraints",
+    "en": "Generics reuse algorithms while retaining compile-time type checks. A constraint tells the compiler which operations a type parameter supports. Avoid object casts and do not use a generic repository simply to hide every database operation.",
+    "bn": "Generic একই logic বিভিন্ন type-এ নিরাপদে ব্যবহার করে। Constraint দিয়ে type-এর প্রয়োজনীয় ক্ষমতা নির্ধারণ করুন।",
+    "code": "Console.WriteLine(Max(3, 7));\nConsole.WriteLine(Max(2.5m, 1.5m));\nstatic T Max<T>(T left, T right) where T : IComparable<T>\n{\n    return left.CompareTo(right) >= 0 ? left : right;\n}",
+    "caution": "Additional C# backend lesson. Examples use a .NET 8+ console project with implicit usings enabled; apply domain validation and test failure paths before using the pattern in an API.",
+    "exercise": "Explain how this feature affects an API request, then write one normal-case and one failure-case check."
+  },
+  {
+    "topic": "Records, Init & Immutable DTOs",
+    "en": "Records provide value-based equality and concise data models. A with expression creates a shallow copy with selected changes. Init-only properties prevent reassignment after construction but do not make nested mutable collections immutable.",
+    "bn": "Record value অনুযায়ী equality পরীক্ষা করে। with দিয়ে পরিবর্তিত copy তৈরি হয়। ভিতরে mutable list থাকলে record গভীরভাবে immutable নয়।",
+    "code": "var first = new ProductDto(1, \"Book\", 10m);\nvar second = first with { Price = 12m };\nConsole.WriteLine(first.Price);\nConsole.WriteLine(second.Price);\nConsole.WriteLine(first == second);\nrecord ProductDto(int Id, string Name, decimal Price);",
+    "caution": "Additional C# backend lesson. Examples use a .NET 8+ console project with implicit usings enabled; apply domain validation and test failure paths before using the pattern in an API.",
+    "exercise": "Explain how this feature affects an API request, then write one normal-case and one failure-case check."
+  },
+  {
+    "topic": "Dictionary & HashSet for Lookups",
+    "en": "Dictionary maps unique keys to values and HashSet stores unique values. TryGetValue avoids throwing for a missing key. Choose a comparer that matches domain rules; ordinary collections are not safe for simultaneous writes across request threads.",
+    "bn": "Dictionary key থেকে value খোঁজে, HashSet unique item রাখে। Missing key-এ TryGetValue ব্যবহার করুন। একাধিক thread থেকে সাধারণ dictionary-তে write নিরাপদ নয়।",
+    "code": "var roles = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);\nroles[\"asha\"] = \"reader\";\nif (roles.TryGetValue(\"ASHA\", out var role))\n    Console.WriteLine(role);\nvar ids = new HashSet<int> { 1, 1, 2 };\nConsole.WriteLine(ids.Count);",
+    "caution": "Additional C# backend lesson. Examples use a .NET 8+ console project with implicit usings enabled; apply domain validation and test failure paths before using the pattern in an API.",
+    "exercise": "Explain how this feature affects an API request, then write one normal-case and one failure-case check."
+  },
+  {
+    "topic": "IDisposable, Using & Resource Lifetime",
+    "en": "Using guarantees disposal when a scope exits, including exception paths. Dispose releases external resources such as file handles; garbage collection alone does not provide prompt cleanup. Use await using when a resource implements IAsyncDisposable.",
+    "bn": "using scope শেষে resource বন্ধ করে, exception হলেও। Garbage collection-এর অপেক্ষায় file handle ফেলে রাখবেন না। Async disposal-এ await using লাগে।",
+    "code": "using var stream = new MemoryStream();\nstream.WriteByte(65);\nstream.Position = 0;\nConsole.WriteLine(stream.ReadByte());\n// The stream is disposed when this scope ends.\n// Do not return this disposed stream to a caller.",
+    "caution": "Additional C# backend lesson. Examples use a .NET 8+ console project with implicit usings enabled; apply domain validation and test failure paths before using the pattern in an API.",
+    "exercise": "Explain how this feature affects an API request, then write one normal-case and one failure-case check."
+  },
+  {
+    "topic": "Pattern Matching & Switch Expressions",
+    "en": "Patterns combine shape checks with branching. A switch expression must handle all intended cases and should include a deliberate fallback for unexpected input. Use domain validation rather than treating an unknown status as a successful state.",
+    "bn": "Pattern matching দিয়ে মান ও shape পরীক্ষা করে branch নিন। অজানা status-এর জন্য স্পষ্ট fallback দিন।",
+    "code": "Console.WriteLine(Describe(200));\nConsole.WriteLine(Describe(404));\nstatic string Describe(int status) => status switch\n{\n    >= 200 and < 300 => \"Success\",\n    404 => \"Missing\",\n    _ => \"Other\"\n};",
+    "caution": "Additional C# backend lesson. Examples use a .NET 8+ console project with implicit usings enabled; apply domain validation and test failure paths before using the pattern in an API.",
+    "exercise": "Explain how this feature affects an API request, then write one normal-case and one failure-case check."
+  },
+  {
+    "topic": "System.Text.Json & API Contracts",
+    "en": "System.Text.Json serializes typed objects to JSON and deserializes JSON into models. JSON shape is a public contract: naming, null handling and required fields affect clients. Deserialization success does not prove that business rules are valid.",
+    "bn": "JSON field name ও null policy client-এর contract। Deserialize সফল হলেও business validation প্রয়োজন।",
+    "code": "using System.Text.Json;\nvar options = new JsonSerializerOptions(JsonSerializerDefaults.Web);\nstring json = JsonSerializer.Serialize(new OrderDto(7, 25m), options);\nConsole.WriteLine(json);\nvar order = JsonSerializer.Deserialize<OrderDto>(json, options);\nConsole.WriteLine(order?.Id);\nrecord OrderDto(int Id, decimal Total);",
+    "caution": "Additional C# backend lesson. Examples use a .NET 8+ console project with implicit usings enabled; apply domain validation and test failure paths before using the pattern in an API.",
+    "exercise": "Explain how this feature affects an API request, then write one normal-case and one failure-case check."
+  },
+  {
+    "topic": "DateTimeOffset, UTC & TimeProvider",
+    "en": "DateTimeOffset represents a timestamp with its UTC offset; it does not identify a time zone and its daylight-saving rules. Persist instants consistently and convert for display. Inject TimeProvider to make time-dependent business rules testable.",
+    "bn": "DateTimeOffset সময় ও UTC offset রাখে, time zone-এর সব নিয়ম নয়। Display-তে timezone conversion করুন; test-এর জন্য TimeProvider inject করুন।",
+    "code": "using System.Globalization;\nvar instant = DateTimeOffset.Parse(\"2026-01-01T00:00:00+00:00\", CultureInfo.InvariantCulture);\nvar expires = instant.AddMinutes(15);\nConsole.WriteLine(expires.ToString(\"O\"));\nConsole.WriteLine(expires > instant);\n// For services, inject TimeProvider instead of reading the clock everywhere.",
+    "caution": "Additional C# backend lesson. Examples use a .NET 8+ console project with implicit usings enabled; apply domain validation and test failure paths before using the pattern in an API.",
+    "exercise": "Explain how this feature affects an API request, then write one normal-case and one failure-case check."
+  },
+  {
+    "topic": "IEnumerable vs IQueryable & Deferred Execution",
+    "en": "IEnumerable enumerates values in .NET, whereas IQueryable carries an expression a provider may translate into SQL. Filter and project before materialization. Repeated enumeration can run queries again and unsupported expressions may fail translation.",
+    "bn": "IQueryable provider-এর জন্য expression ধরে রাখে, IEnumerable .NET-এ item পড়ে। ToList-এর আগে filter ও projection করুন; বারবার enumerate করলে query আবার চলতে পারে।",
+    "code": "var values = new List<int> { 1, 2, 3 };\nvar query = values.Where(x => x > 1);\nvalues.Add(4);\nConsole.WriteLine(string.Join(\",\", query));\nvar snapshot = query.ToList();\nvalues.Add(5);\nConsole.WriteLine(string.Join(\",\", snapshot));",
+    "caution": "Additional C# backend lesson. Examples use a .NET 8+ console project with implicit usings enabled; apply domain validation and test failure paths before using the pattern in an API.",
+    "exercise": "Explain how this feature affects an API request, then write one normal-case and one failure-case check."
+  }
+]

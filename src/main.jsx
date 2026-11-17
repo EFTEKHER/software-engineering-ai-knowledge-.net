@@ -478,6 +478,33 @@ function App() {
             <Notebook onOpen={open} />
           ) : (
             <>
+              <section className="study-spotlight" aria-label="C# study module">
+                <div className="study-monogram" aria-hidden="true">
+                  C#
+                </div>
+                <div className="study-copy">
+                  <span className="study-eyebrow">
+                    NEW · DEDICATED C# MODULE
+                  </span>
+                  <h2>A clear path from your first line to confident C#.</h2>
+                  <p>
+                    39 focused lessons · Console to LINQ, memory &amp; files ·
+                    English + বাংলা
+                  </p>
+                  <div className="study-tags">
+                    <span>01–10 Foundations</span>
+                    <span>11–18 Methods &amp; objects</span>
+                    <span>19–29 LINQ &amp; I/O</span>
+                    <span>30–39 Backend C#</span>
+                  </div>
+                </div>
+                <button
+                  className="primary"
+                  onClick={() => open(modules[17], 0)}
+                >
+                  Start C# <ArrowRight size={16} />
+                </button>
+              </section>
               <section className="path-heading">
                 <div>
                   <h2>
@@ -700,7 +727,7 @@ function ModuleSection({ title, index, items, done, open, level, view }) {
       </div>
       <div className={"modules " + view}>
         {items.map((m) => {
-          let I = icons[m.id],
+          let I = icons[m.id] || Code2,
             n = done.filter((x) => x.startsWith(m.id + "-")).length;
           return (
             <article className={"module-card accent" + m.stage} key={m.id}>
