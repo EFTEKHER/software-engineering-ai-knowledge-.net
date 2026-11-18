@@ -76,6 +76,71 @@ test("runs the HRMS exercises and compares indexed plans", async ({ page }) => {
         ["6", "Sami", "2"],
       ],
     ],
+    [
+      "Department headcount including zeroes",
+      [
+        ["Engineering", "3"],
+        ["Finance", "0"],
+        ["Operations", "1"],
+        ["People", "1"],
+      ],
+    ],
+    [
+      "Rank every employee by January pay",
+      [
+        ["1", "950000", "1"],
+        ["2", "850000", "2"],
+        ["3", "700000", "3"],
+        ["6", "700000", "3"],
+        ["4", "500000", "4"],
+        ["5", "0", "5"],
+      ],
+    ],
+    [
+      "Flag rolling seven-day attendance load",
+      [
+        ["2", "2026-01-03", "5"],
+        ["2", "2026-01-05", "6"],
+      ],
+    ],
+    [
+      "Running payroll with opening balances",
+      [
+        ["1", "1", "2026-01-31", "950000"],
+        ["2", "2", "2026-01-31", "1580000"],
+        ["2", "5", "2026-01-31", "1630000"],
+        ["3", "3", "2026-01-31", "700000"],
+        ["4", "4", "2026-01-31", "500000"],
+        ["6", "6", "2026-01-31", "700000"],
+      ],
+    ],
+    [
+      "Find active employees without February payroll",
+      [
+        ["1", "Amina"],
+        ["3", "Nila"],
+        ["4", "Ishan"],
+        ["6", "Sami"],
+      ],
+    ],
+    [
+      "Walk an employee’s manager chain",
+      [
+        ["5", "Tara", "1"],
+        ["1", "Amina", "2"],
+      ],
+    ],
+    [
+      "Month-over-month payroll growth",
+      [
+        ["Engineering", "2026-01-01", "2250000", "NULL", "NULL"],
+        ["Engineering", "2026-02-01", "810000", "2250000", "-64"],
+        ["Operations", "2026-01-01", "500000", "NULL", "NULL"],
+        ["Operations", "2026-02-01", "0", "500000", "-100"],
+        ["People", "2026-01-01", "950000", "NULL", "NULL"],
+        ["People", "2026-02-01", "0", "950000", "-100"],
+      ],
+    ],
   ];
 
   await page.reload();
@@ -84,8 +149,10 @@ test("runs the HRMS exercises and compares indexed plans", async ({ page }) => {
     await challenges.getByRole("button", { name: title }).click();
     await page.getByText("Step-by-step solution").click();
     await page.getByRole("button", { name: "Load solution" }).click();
-    for (const indexed of [false, true]) {
-      await page.getByLabel("Apply suggested indexes").setChecked(indexed);
+    const indexToggle = page.getByLabel("Apply suggested indexes");
+    const indexOptions = (await indexToggle.count()) ? [false, true] : [false];
+    for (const indexed of indexOptions) {
+      if (indexed) await indexToggle.check();
       await page.getByRole("button", { name: "Run query" }).click();
       const rows = page.locator(".hrms-results tbody tr");
       await expect(rows).toHaveCount(expected.length);
@@ -116,6 +183,29 @@ test("opens the module from mobile navigation without page overflow", async ({
   await expect(
     page.getByRole("heading", { name: "SQL Query Optimization" }),
   ).toBeVisible();
+  await page
+    .getByRole("link", { name: "Browse the full SQL curriculum" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Full SQL curriculum" }),
+  ).toBeFocused();
+  await expect(page).toHaveURL(/#sql-optimization$/);
+  const curriculum = page.getByRole("region", { name: "Full SQL curriculum" });
+  const chapters = curriculum.locator("summary");
+  await expect(chapters).toHaveCount(25);
+  await expect(curriculum.locator("dt")).toHaveCount(121);
+  await curriculum
+    .getByText("14. Stored Procedures and Functions", { exact: true })
+    .click();
+  await expect(
+    curriculum.getByText("14.5 Table-valued parameters"),
+  ).toBeVisible();
+  await curriculum
+    .getByText("22. Execution Plans, SARGability, and Parameter Sniffing", {
+      exact: true,
+    })
+    .click();
+  await expect(curriculum.getByText("22.4 Query Store")).toBeVisible();
   await page.getByText("Sample database schema and data").click();
   await page.getByText("Step-by-step solution").click();
   expect(

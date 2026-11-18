@@ -1,0 +1,787 @@
+[
+  {
+    "title": "Foundations",
+    "chapters": [
+      {
+        "number": 1,
+        "title": "How a Relational Database Thinks",
+        "topics": [
+          {
+            "number": "1.1",
+            "title": "The one idea underneath everything",
+            "detail": "Think in sets of employee rows. Describe the result grain first, such as one row per active employee, and let the optimizer choose the access path."
+          },
+          {
+            "number": "1.2",
+            "title": "Tables, rows, and the relational model",
+            "detail": "A table represents a relation with named columns. A primary key identifies each employee and foreign keys express relationships such as reports-to-manager."
+          },
+          {
+            "number": "1.3",
+            "title": "The logical processing order of a SELECT",
+            "detail": "Reason through FROM and JOIN, WHERE, GROUP BY, HAVING, SELECT, DISTINCT, ORDER BY, and then pagination. That explains why a SELECT alias usually cannot appear in WHERE."
+          },
+          {
+            "number": "1.4",
+            "title": "Logical order is not physical order",
+            "detail": "Logical order defines the result. SQL Server can push filters down and reorder compatible joins where the transformation preserves that result."
+          },
+          {
+            "number": "1.5",
+            "title": "Client–server: the cost you forget",
+            "detail": "An HR dashboard that requests attendance individually for 100 employees can burn 100 round trips. Compare one grouped request with the per-employee implementation."
+          },
+          {
+            "number": "1.6",
+            "title": "ACID in one page",
+            "detail": "Atomicity groups related writes, consistency preserves declared rules, isolation constrains what parallel transactions observe, and durability preserves committed changes."
+          },
+          {
+            "number": "1.7",
+            "title": "Chapter summary",
+            "detail": "Before tuning a query, name its result grain, candidate keys, filters, and ordering. These tell you what the rewrite must preserve."
+          }
+        ]
+      },
+      {
+        "number": 2,
+        "title": "The Schema Used in This Book",
+        "topics": [
+          {
+            "number": "2.1",
+            "title": "Entity overview",
+            "detail": "The PDF uses banking entities. The HRMS lab uses employees, attendance shifts, leave entries, and payroll components, with employees at the center."
+          },
+          {
+            "number": "2.2",
+            "title": "Data definition",
+            "detail": "Open the sample schema and trace the primary and foreign keys. Each attendance, payroll, or leave row references an employee. The manager relationship references the same employee table."
+          },
+          {
+            "number": "2.3",
+            "title": "Reading the DDL like an engineer",
+            "detail": "Read data types, nullability, CHECK rules, and keys as business constraints. A nullable manager can represent the CEO. A nullable attendance employee would make the shift impossible to attribute."
+          },
+          {
+            "number": "2.4",
+            "title": "Seeding sample data",
+            "detail": "Seed parent employees first, then their detail records. Include split shifts, tied payroll totals, missing attendance, and dates on both sides of a month boundary."
+          }
+        ]
+      },
+      {
+        "number": 3,
+        "title": "Data Types and the Truth About NULL",
+        "topics": [
+          {
+            "number": "3.1",
+            "title": "Choosing types deliberately",
+            "detail": "Use a DATE for calendar dates and DECIMAL or integer cents for payroll. SQLite represents this lab’s dates as sortable ISO strings. SQL Server can enforce native date types."
+          },
+          {
+            "number": "3.2",
+            "title": "NULL is not a value",
+            "detail": "NULL represents an unknown or absent value. WHERE manager_id IS NULL finds employees with no manager. Equality with NULL produces UNKNOWN."
+          },
+          {
+            "number": "3.3",
+            "title": "How aggregates treat NULL",
+            "detail": "COUNT(*) counts rows; COUNT(manager_id) counts known manager IDs. SUM and AVG ignore NULL inputs and yield NULL when there are no non-NULL inputs."
+          },
+          {
+            "number": "3.4",
+            "title": "Handling NULL: COALESCE, ISNULL, NULLIF",
+            "detail": "COALESCE can choose among several expressions. T-SQL ISNULL takes two and usually keeps the first expression’s type. NULLIF(value, 0) can guard a division by zero."
+          },
+          {
+            "number": "3.5",
+            "title": "Implicit conversion: the silent performance killer",
+            "detail": "Match parameter types to column types. Comparing a VARCHAR employee code to an INT may convert the indexed column, affect index use, and fail for nonnumeric codes."
+          },
+          {
+            "number": "3.6",
+            "title": "Chapter summary",
+            "detail": "Test missing rows and actual NULL values separately. A missing payroll entry, an unknown amount, and a recorded zero can have different business meanings."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Core SQL",
+    "chapters": [
+      {
+        "number": 4,
+        "title": "Querying a Single Table",
+        "topics": [
+          {
+            "number": "4.1",
+            "title": "SELECT and projection",
+            "detail": "Project the columns the consumer needs, such as employee ID and name. A narrow projection can reduce transfer and make an index cover the query."
+          },
+          {
+            "number": "4.2",
+            "title": "Filtering with WHERE",
+            "detail": "Filter active employees with WHERE active = 1. Use half-open date intervals like work_date >= start AND work_date < next_start for reporting windows."
+          },
+          {
+            "number": "4.3",
+            "title": "Pattern matching",
+            "detail": "LIKE 'Ra%' matches a prefix and may use an index with compatible collation. A leading wildcard like '%afi' usually prevents an ordinary B-tree prefix seek."
+          },
+          {
+            "number": "4.4",
+            "title": "ORDER BY, TOP, and pagination",
+            "detail": "Use ORDER BY with a unique tie-breaker. T-SQL TOP (n) returns the first n rows under that ordering, while OFFSET/FETCH and cursor pagination model different browsing needs."
+          },
+          {
+            "number": "4.5",
+            "title": "CASE: conditional logic inside SQL",
+            "detail": "Use CASE to label shifts over a threshold or count approved leave conditionally. Include an ELSE when the report needs a default."
+          }
+        ]
+      },
+      {
+        "number": 5,
+        "title": "Joins",
+        "topics": [
+          {
+            "number": "5.1",
+            "title": "INNER JOIN",
+            "detail": "An INNER JOIN from payroll to employees returns matched payroll components. Several components for one employee remain several output rows."
+          },
+          {
+            "number": "5.2",
+            "title": "LEFT JOIN and the WHERE trap",
+            "detail": "Place the optional table’s January filter in ON when all employees must remain visible. A WHERE comparison on the right-side date removes NULL-extended rows."
+          },
+          {
+            "number": "5.3",
+            "title": "Anti-joins: finding what is missing",
+            "detail": "Use NOT EXISTS to find active employees missing January payroll. The inner query tests for a matching employee and period."
+          },
+          {
+            "number": "5.4",
+            "title": "Self joins",
+            "detail": "Join employees to employees with different aliases to display each employee beside their manager. A LEFT JOIN preserves the CEO."
+          },
+          {
+            "number": "5.5",
+            "title": "CROSS JOIN and CROSS APPLY",
+            "detail": "CROSS JOIN produces every employee/day pair for a schedule. T-SQL CROSS APPLY evaluates a right-side table expression for each left row. OUTER APPLY preserves rows with no match."
+          },
+          {
+            "number": "5.6",
+            "title": "Join fan-out: the duplicate-money bug",
+            "detail": "Joining raw attendance and leave by employee multiplies each source’s facts. Sum each at employee grain before joining. The dashboard exercise demonstrates this."
+          },
+          {
+            "number": "5.7",
+            "title": "Physical join algorithms",
+            "detail": "Nested loops can suit small outer inputs with indexed lookups. Hash joins can suit larger equality joins. Merge joins can exploit matching sort order."
+          }
+        ]
+      },
+      {
+        "number": 6,
+        "title": "Aggregation and Grouping",
+        "topics": [
+          {
+            "number": "6.1",
+            "title": "The aggregate functions",
+            "detail": "COUNT measures rows, SUM totals values, AVG computes a mean, and MIN/MAX find extremes. AVG of shift lengths differs from AVG of employee-level totals."
+          },
+          {
+            "number": "6.2",
+            "title": "GROUP BY and the every-column rule",
+            "detail": "For portable grouping, put each selected nonaggregate expression in GROUP BY. SQL Server requires this where the expression references input columns."
+          },
+          {
+            "number": "6.3",
+            "title": "WHERE vs HAVING",
+            "detail": "WHERE filters shifts before grouping. HAVING SUM(minutes_worked) > 900 filters completed employee groups."
+          },
+          {
+            "number": "6.4",
+            "title": "Conditional aggregation",
+            "detail": "SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) counts only approved entries within each group."
+          },
+          {
+            "number": "6.5",
+            "title": "GROUPING SETS, ROLLUP, CUBE",
+            "detail": "In T-SQL, GROUPING SETS enumerates subtotal grains. ROLLUP follows a hierarchy and CUBE generates every combination. GROUPING distinguishes subtotal NULLs from stored NULLs."
+          }
+        ]
+      },
+      {
+        "number": 7,
+        "title": "Set Operators",
+        "topics": [
+          {
+            "number": "7.1",
+            "title": "The four operators",
+            "detail": "UNION deduplicates, UNION ALL appends, INTERSECT returns common tuples, and EXCEPT returns distinct tuples from the left that are absent on the right."
+          },
+          {
+            "number": "7.2",
+            "title": "Rules and NULL behaviour",
+            "detail": "Align column positions and compatible types. Duplicate elimination treats NULLs in equivalent positions as equal. Add ORDER BY to the full compound query for deterministic output."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Intermediate SQL",
+    "chapters": [
+      {
+        "number": 8,
+        "title": "Subqueries",
+        "topics": [
+          {
+            "number": "8.1",
+            "title": "Scalar, multi-valued, and correlated",
+            "detail": "A scalar subquery must yield at most one row in SQL Server. IN accepts a set. A correlated subquery refers to the outer row and can often be expressed as a join or grouped aggregate."
+          },
+          {
+            "number": "8.2",
+            "title": "EXISTS vs IN vs JOIN",
+            "detail": "Use EXISTS for employee membership without multiplying rows. JOIN is appropriate when columns from the matched table are needed and its grain is intentional."
+          },
+          {
+            "number": "8.3",
+            "title": "The NOT IN NULL trap",
+            "detail": "If an IN list can contain NULL, NOT IN can evaluate to UNKNOWN even when no equality match exists. A correlated NOT EXISTS avoids the trap for nonnullable employee IDs."
+          },
+          {
+            "number": "8.4",
+            "title": "Derived tables",
+            "detail": "A derived table is a subquery in FROM. Give it an alias and use it to expose a computed total to an outer filter or join."
+          }
+        ]
+      },
+      {
+        "number": 9,
+        "title": "Common Table Expressions",
+        "topics": [
+          {
+            "number": "9.1",
+            "title": "Why CTEs",
+            "detail": "Use a named CTE to explain query stages such as employee totals followed by payroll rank. A CTE does not promise a cached result."
+          },
+          {
+            "number": "9.2",
+            "title": "Recursive CTEs",
+            "detail": "Start with an anchor then UNION ALL a recursive member. Track visited nodes or cap depth, and use SQL Server MAXRECURSION as an execution guard."
+          },
+          {
+            "number": "9.3",
+            "title": "Generating a series",
+            "detail": "A recursive CTE can build a short calendar. For frequently used calendars, use a permanent date dimension or GENERATE_SERIES on supported SQL Server versions and compatibility levels."
+          },
+          {
+            "number": "9.4",
+            "title": "Updatable CTEs",
+            "detail": "SQL Server can update through some CTEs that map to an updatable base table. Preview target IDs and verify that joins identify each target row once."
+          }
+        ]
+      },
+      {
+        "number": 10,
+        "title": "Window Functions",
+        "topics": [
+          {
+            "number": "10.1",
+            "title": "The anatomy of OVER",
+            "detail": "OVER defines a partition, an order, and where supported a frame. Payroll ranks can restart in each department without collapsing rows."
+          },
+          {
+            "number": "10.2",
+            "title": "Ranking functions",
+            "detail": "ROW_NUMBER assigns a unique sequence, RANK leaves gaps for ties, and DENSE_RANK counts distinct ordered values. Match the function to the business rule."
+          },
+          {
+            "number": "10.3",
+            "title": "Top-N per group",
+            "detail": "Compute the rank in a CTE and filter it in the outer query. Rank by pay alone if tied employees must share a position."
+          },
+          {
+            "number": "10.4",
+            "title": "Offset functions: LAG and LEAD",
+            "detail": "LAG reads a preceding row and LEAD a following row. Generate missing calendar periods first when a report needs the previous calendar month."
+          },
+          {
+            "number": "10.5",
+            "title": "Frames: ROWS vs RANGE",
+            "detail": "ROWS advances by physical rows under the window order. RANGE can include all peers at the same sort value. Use a stable tie-breaker for per-entry running totals."
+          },
+          {
+            "number": "10.6",
+            "title": "The gaps-and-islands problem",
+            "detail": "Deduplicate attendance dates, subtract their sequence number from the day number, and group equal differences to find consecutive runs."
+          }
+        ]
+      },
+      {
+        "number": 11,
+        "title": "Views, Temp Tables, and Table Variables",
+        "topics": [
+          {
+            "number": "11.1",
+            "title": "Views",
+            "detail": "A view provides a named SELECT, such as an active roster. Filter and order the outer query according to the caller’s needs."
+          },
+          {
+            "number": "11.2",
+            "title": "Indexed (materialised) views",
+            "detail": "A SQL Server indexed view persists its result using a unique clustered index. Eligibility rules include schema binding and required SET options. Check write overhead."
+          },
+          {
+            "number": "11.3",
+            "title": "Temp tables vs table variables",
+            "detail": "Use a #temp table to stage a larger intermediate result with statistics and indexes. A table variable can suit small scopes. Deferred compilation can help estimates on supported SQL Server versions."
+          }
+        ]
+      },
+      {
+        "number": 12,
+        "title": "Modifying Data",
+        "topics": [
+          {
+            "number": "12.1",
+            "title": "INSERT patterns",
+            "detail": "Name target columns explicitly. Use INSERT SELECT for a set of rows and SQL Server OUTPUT when the caller needs inserted IDs."
+          },
+          {
+            "number": "12.2",
+            "title": "UPDATE with a join",
+            "detail": "Update from a source whose join yields at most one row per employee. A duplicate source makes UPDATE FROM nondeterministic in SQL Server."
+          },
+          {
+            "number": "12.3",
+            "title": "DELETE, TRUNCATE, and batching",
+            "detail": "DELETE can filter rows and fire delete triggers. SQL Server TRUNCATE clears the whole table under stricter rules and resets identity. For large selective deletes, commit bounded batches."
+          },
+          {
+            "number": "12.4",
+            "title": "MERGE / UPSERT",
+            "detail": "Enforce a unique business key first. Review SQL Server MERGE concurrency and version behavior, or use transactional update/insert. SQLite supports ON CONFLICT on a unique key."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Advanced SQL",
+    "chapters": [
+      {
+        "number": 13,
+        "title": "Transactions, Isolation, and Locking",
+        "topics": [
+          {
+            "number": "13.1",
+            "title": "The transfer that must not lose money",
+            "detail": "Move a payroll adjustment between ledger rows in one transaction. Validate both row counts and roll back all changes on failure so the total stays balanced."
+          },
+          {
+            "number": "13.2",
+            "title": "The four concurrency phenomena",
+            "detail": "Dirty reads see uncommitted changes. Nonrepeatable reads see a row change, phantoms see membership change, and lost updates overwrite another writer’s work."
+          },
+          {
+            "number": "13.3",
+            "title": "Isolation levels",
+            "detail": "Compare READ COMMITTED, REPEATABLE READ, SNAPSHOT, and SERIALIZABLE with two sessions. SQL Server READ_COMMITTED_SNAPSHOT changes how READ COMMITTED reads are served."
+          },
+          {
+            "number": "13.4",
+            "title": "Optimistic vs pessimistic concurrency",
+            "detail": "An optimistic update checks a version token in WHERE and detects zero rows affected. A pessimistic workflow takes locks before making a decision. Keep either transaction short."
+          },
+          {
+            "number": "13.5",
+            "title": "Deadlocks",
+            "detail": "Deadlocks are lock cycles. Inspect the deadlock graph, use a consistent access order, and retry SQL Server error 1205 with bounded attempts for retry-safe operations."
+          }
+        ]
+      },
+      {
+        "number": 14,
+        "title": "Stored Procedures and Functions",
+        "topics": [
+          {
+            "number": "14.1",
+            "title": "Anatomy of a production procedure",
+            "detail": "A production procedure declares typed parameters, validates inputs, uses SET NOCOUNT ON, and defines its transaction and error contract."
+          },
+          {
+            "number": "14.2",
+            "title": "Why procedures still matter in an ORM world",
+            "detail": "A procedure can package a multi-step payroll operation behind one call and scoped permissions. Keep simple ORM queries when they fit the use case."
+          },
+          {
+            "number": "14.3",
+            "title": "Scalar functions: the performance trap",
+            "detail": "A scalar UDF can be invoked per row and hide work. SQL Server may inline eligible functions on supported versions. Confirm the compiled plan."
+          },
+          {
+            "number": "14.4",
+            "title": "Inline table-valued functions: the good kind",
+            "detail": "An inline TVF is a parameterized relational expression. An attendance TVF using a single SELECT can be joined to the roster by the caller."
+          },
+          {
+            "number": "14.5",
+            "title": "Table-valued parameters",
+            "detail": "Pass a batch of employee IDs using a READONLY table-valued parameter. SQL Server does not maintain column statistics on TVPs, so consider staging a large batch."
+          }
+        ]
+      },
+      {
+        "number": 15,
+        "title": "Triggers",
+        "topics": [
+          {
+            "number": "15.1",
+            "title": "An audit trigger",
+            "detail": "Use inserted and deleted as sets in SQL Server. Join by employee ID to write one audit entry per changed employee, including multi-row updates."
+          },
+          {
+            "number": "15.2",
+            "title": "INSTEAD OF triggers",
+            "detail": "An INSTEAD OF trigger replaces the original operation. On a view, it can direct allowed inserts into underlying tables and enforce a clear write contract."
+          },
+          {
+            "number": "15.3",
+            "title": "When not to use a trigger",
+            "detail": "Prefer declarative constraints for integrity and explicit transactions for side effects callers need to understand. Triggers run on the writer’s path and need multi-row tests."
+          }
+        ]
+      },
+      {
+        "number": 16,
+        "title": "Loops, Cursors, and Thinking in Sets",
+        "topics": [
+          {
+            "number": "16.1",
+            "title": "Why loops are slow here",
+            "detail": "Row-at-a-time processing repeats work and may increase round trips. A grouped payroll query lets the engine plan one relational operation."
+          },
+          {
+            "number": "16.2",
+            "title": "The cursor: full syntax, so you can read legacy code",
+            "detail": "Recognize DECLARE CURSOR, OPEN, FETCH, the @@FETCH_STATUS loop, CLOSE, and DEALLOCATE when maintaining legacy T-SQL."
+          },
+          {
+            "number": "16.3",
+            "title": "The same thing, set-based",
+            "detail": "Replace per-employee totals with GROUP BY employee_id, and per-row labels with CASE. Compare outputs including employees with no facts."
+          },
+          {
+            "number": "16.4",
+            "title": "The set-based translation table",
+            "detail": "Common translations include counters to COUNT, running totals to SUM OVER, per-row membership checks to EXISTS, and next-row comparisons to LEAD."
+          },
+          {
+            "number": "16.5",
+            "title": "The WHILE loop and when loops are actually right",
+            "detail": "A WHILE loop can manage bounded cleanup batches or retry transient failures. Use a terminating condition and keep work inside each batch set-based."
+          },
+          {
+            "number": "16.6",
+            "title": "RBAR, and where it hides in application code",
+            "detail": "ORM navigation access can cause one query per employee. Count database commands and batch fetch explicit projections for the page."
+          }
+        ]
+      },
+      {
+        "number": 17,
+        "title": "Dynamic SQL and Injection",
+        "topics": [
+          {
+            "number": "17.1",
+            "title": "The right way and the catastrophic way",
+            "detail": "Keep SQL structure fixed where possible. When structure must vary in SQL Server, use sp_executesql with typed parameters for employee and date values."
+          },
+          {
+            "number": "17.2",
+            "title": "Identifiers cannot be parameters",
+            "detail": "Bind values as parameters. For dynamic sort columns, map a user selection to a fixed allowlist and quote approved identifiers with QUOTENAME."
+          },
+          {
+            "number": "17.3",
+            "title": "The optional-parameter problem",
+            "detail": "A shared optional-filter expression can produce weak plans across selective and broad calls. Compare parameterized branches, recompilation, or version-supported optimization after measuring."
+          }
+        ]
+      },
+      {
+        "number": 18,
+        "title": "Error Handling",
+        "topics": [
+          {
+            "number": "18.1",
+            "title": "TRY/CATCH and what it does not catch",
+            "detail": "Wrap the transaction in TRY/CATCH. Same-scope compilation errors and connection termination can escape CATCH. Validate failure behavior in a test database."
+          },
+          {
+            "number": "18.2",
+            "title": "THROW vs RAISERROR",
+            "detail": "Use THROW inside CATCH to rethrow the original error. RAISERROR has older formatting and severity controls and does not honor SET XACT_ABORT."
+          },
+          {
+            "number": "18.3",
+            "title": "Nested transactions are a lie",
+            "detail": "An inner COMMIT only decrements @@TRANCOUNT. Coordinate ownership with callers, use savepoints where valid, and check XACT_STATE before deciding how to roll back."
+          }
+        ]
+      },
+      {
+        "number": 19,
+        "title": "Strings, Dates, JSON, and Pivoting",
+        "topics": [
+          {
+            "number": "19.1",
+            "title": "STRING_AGG and STRING_SPLIT",
+            "detail": "Use STRING_AGG with explicit ordering when order matters. STRING_SPLIT returns rows; on supported versions request ordinal and order by it to restore input order."
+          },
+          {
+            "number": "19.2",
+            "title": "Dates done right",
+            "detail": "Use typed boundaries and compare the stored date or timestamp directly. Define the business time zone before deriving a calendar day and test daylight-saving transitions for timestamps."
+          },
+          {
+            "number": "19.3",
+            "title": "JSON",
+            "detail": "Use SQL Server JSON_VALUE for scalars and OPENJSON for arrays or typed rowsets. Validate shape and retain relational keys for frequently joined data."
+          },
+          {
+            "number": "19.4",
+            "title": "PIVOT",
+            "detail": "T-SQL PIVOT turns known status values into columns. Conditional aggregation is a portable alternative that also makes zero-handling explicit."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Query Optimization",
+    "chapters": [
+      {
+        "number": 20,
+        "title": "Indexes",
+        "topics": [
+          {
+            "number": "20.1",
+            "title": "The B-tree",
+            "detail": "B-tree indexes support ordered traversal and range access. Inspect both scan and search plans on the same attendance filter."
+          },
+          {
+            "number": "20.2",
+            "title": "Clustered vs nonclustered",
+            "detail": "A clustered index organizes SQL Server rowstore data at its leaf. A nonclustered index has a separate structure and uses a row locator to reach the base row."
+          },
+          {
+            "number": "20.3",
+            "title": "Composite keys: order is everything",
+            "detail": "Key order follows the workload. For WHERE employee_id = ? AND work_date >= ?, an employee/date index enables an equality prefix and a date range."
+          },
+          {
+            "number": "20.4",
+            "title": "Covering indexes and INCLUDE",
+            "detail": "Use T-SQL INCLUDE for columns required only as payload. SQLite can cover queries by storing payload as additional index key columns."
+          },
+          {
+            "number": "20.5",
+            "title": "Filtered indexes",
+            "detail": "A SQL Server filtered index can target approved leave. The predicate must align with the query. SQLite calls this a partial index."
+          },
+          {
+            "number": "20.6",
+            "title": "The cost of an index",
+            "detail": "Indexes consume storage and add work to writes. Compare payroll import throughput and report reads before keeping an index."
+          },
+          {
+            "number": "20.7",
+            "title": "Finding missing and unused indexes",
+            "detail": "Review missing-index and usage DMVs alongside actual plans. Account for restarts and reporting cycles. Consolidate overlapping indexes only after checking key order, includes, and workload."
+          }
+        ]
+      },
+      {
+        "number": 21,
+        "title": "Statistics and the Optimizer",
+        "topics": [
+          {
+            "number": "21.1",
+            "title": "Cardinality estimation is the whole ballgame",
+            "detail": "Estimated row counts influence join types and memory grants. Compare estimates to actual rows for a heavily populated department and a rare one."
+          },
+          {
+            "number": "21.2",
+            "title": "When statistics go stale",
+            "detail": "After bulk changes, check stats freshness and sample quality with SQL Server statistics metadata. Test a targeted update rather than refreshing every index blindly."
+          },
+          {
+            "number": "21.3",
+            "title": "Where estimates go wrong",
+            "detail": "Correlated predicates, skew, stale histograms, and opaque expressions can distort estimates. Investigate the earliest significant mismatch and test one change."
+          }
+        ]
+      },
+      {
+        "number": 22,
+        "title": "Execution Plans, SARGability, and Parameter Sniffing",
+        "topics": [
+          {
+            "number": "22.1",
+            "title": "Reading a plan",
+            "detail": "In an actual SQL Server execution plan, inspect row counts, residual predicates, repeated lookups, joins, sorts, and spills. A scan can be appropriate for broad queries."
+          },
+          {
+            "number": "22.2",
+            "title": "SARGability",
+            "detail": "Keep filters search-argument friendly. Replace a month function on work_date with a half-open range, then compare logical reads."
+          },
+          {
+            "number": "22.3",
+            "title": "Parameter sniffing",
+            "detail": "SQL Server can compile with one set of parameter values and reuse the resulting plan. Compare common and rare values and evaluate Query Store evidence before changing plan policy."
+          },
+          {
+            "number": "22.4",
+            "title": "Query Store",
+            "detail": "Query Store records historical query text, plan versions, and runtime statistics. Use it to compare deployments and time windows or investigate regressions."
+          }
+        ]
+      },
+      {
+        "number": 23,
+        "title": "Optimization Case Studies",
+        "topics": [
+          {
+            "number": "23.1",
+            "title": "Case 1: The date function scan",
+            "detail": "Compare the attendance date-function filter against a range under the same index. Verify that February 1 is excluded in both plans."
+          },
+          {
+            "number": "23.2",
+            "title": "Case 2: The correlated subquery in the SELECT list",
+            "detail": "Rewrite repeated correlated totals as a grouped relation joined once. An indexed lookup may still win for a selective outer input, so measure both."
+          },
+          {
+            "number": "23.3",
+            "title": "Case 3: The implicit conversion",
+            "detail": "Align employee code parameter types with column types. Check the actual plan for CONVERT_IMPLICIT on the indexed side and compare reads."
+          },
+          {
+            "number": "23.4",
+            "title": "Case 4: The N+1 endpoint",
+            "detail": "Fetch all attendance totals for an employee page with a single grouped query. Measure database command count and endpoint latency."
+          },
+          {
+            "number": "23.5",
+            "title": "Case 5: The OFFSET death march",
+            "detail": "Compare a deep OFFSET with a cursor containing pay_date and id. Include a tie on the page boundary and verify both pages return the same IDs."
+          },
+          {
+            "number": "23.6",
+            "title": "Case 6: The over-indexed table",
+            "detail": "Inventory overlapping payroll indexes. Measure import and report performance before and after consolidating one candidate in a test environment."
+          },
+          {
+            "number": "23.7",
+            "title": "The tuning method",
+            "detail": "Baseline reads and plans, define expected rows, change one element, and repeat with representative parameter values. Keep the change only if correctness and the measured workload support it."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Design and Practice",
+    "chapters": [
+      {
+        "number": 24,
+        "title": "Normalization and Anti-Patterns",
+        "topics": [
+          {
+            "number": "24.1",
+            "title": "Normal forms, practically",
+            "detail": "Model repeating shifts as rows, ensure attributes depend on the full key, and store department attributes with their own key when multiple employees share them."
+          },
+          {
+            "number": "24.2",
+            "title": "Denormalize deliberately, or not at all",
+            "detail": "If dashboard totals justify a summary table, define the refresh cadence, staleness contract, owner, and reconciliation query."
+          },
+          {
+            "number": "24.3",
+            "title": "The anti-pattern catalogue",
+            "detail": "Review how the following designs change constraint enforcement and query shape for an HR system."
+          },
+          {
+            "number": "24.3.1",
+            "title": "Entity-Attribute-Value",
+            "detail": "An EAV model makes typed filters and constraints harder to express. Put frequently queried HR attributes in typed columns and reserve flexible metadata for genuine extension points."
+          },
+          {
+            "number": "24.3.2",
+            "title": "Comma-separated values in a column",
+            "detail": "Replace comma-separated role IDs with an employee_role table keyed by employee_id and role_id. This enables foreign keys and ordinary joins."
+          },
+          {
+            "number": "24.3.3",
+            "title": "Polymorphic associations",
+            "detail": "A generic target_type and target_id pair cannot use one ordinary foreign key to several targets. Consider separate relationship tables or a shared parent entity."
+          },
+          {
+            "number": "24.3.4",
+            "title": "The god table",
+            "detail": "Split a wide employee/payroll/leave table by entity and lifecycle. Use joins and views to reconstruct specific report projections."
+          },
+          {
+            "number": "24.3.5",
+            "title": "Storing money as FLOAT, and dates as strings",
+            "detail": "Use exact numeric money and native SQL Server dates. The SQLite fixture uses integer cents and ISO dates because its type system differs."
+          },
+          {
+            "number": "24.3.6",
+            "title": "No foreign keys “for performance”",
+            "detail": "Preserve relationship integrity with foreign keys. Index relevant child keys based on the join and delete workload."
+          },
+          {
+            "number": "24.4",
+            "title": "Practical design rules",
+            "detail": "Choose a row grain, enforce its natural uniqueness, test foreign key paths, and measure before adding indexes or redundant fields."
+          }
+        ]
+      },
+      {
+        "number": 25,
+        "title": "Interview Preparation and Exercises",
+        "topics": [
+          {
+            "number": "25.1",
+            "title": "The questions, and what they are really testing",
+            "detail": "Explain your expected output, edge cases, access path, and evidence. Practice justifying DENSE_RANK for ties and a bounded retry for deadlocks."
+          },
+          {
+            "number": "25.2",
+            "title": "Exercises",
+            "detail": "Translate the PDF drills to HRMS: zero-count departments, ranked payroll, rolling attendance activity, running balances, missing activity, manager chain, streaks, and month-over-month totals."
+          },
+          {
+            "number": "25.3",
+            "title": "Selected solutions",
+            "detail": "Start with the exact grain for each drill. Use LEFT JOIN for zeroes, window ranks for top totals, a date range for rolling activity, SUM OVER for running totals, NOT EXISTS for absent activity, recursion for the chain, and a calendar plus LAG for month-over-month growth."
+          },
+          {
+            "number": "25.4",
+            "title": "What to study next",
+            "detail": "Explore date-based partitioning, columnstore analytics, system-versioned temporal HR records, memory-optimized tables for measured bottlenecks, and isolation guarantees across service boundaries."
+          }
+        ]
+      }
+    ]
+  }
+]

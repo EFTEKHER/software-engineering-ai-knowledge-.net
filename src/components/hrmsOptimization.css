@@ -153,14 +153,15 @@
   padding: 0.45rem 0.65rem;
 }
 
-.hrms-topics {
+.hrms-curriculum {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
+  align-items: start;
   gap: 1.3rem;
   margin-top: 1.25rem;
 }
 
-.hrms-topics h3 {
+.hrms-curriculum h3 {
   margin-bottom: 0.35rem;
 }
 
@@ -168,4 +169,25 @@
   .hrms-layout {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+.hrms-hero a {
+  display: inline-block;
+  margin-top: 0.8rem;
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.hrms-curriculum details {
+  margin-top: 0.4rem;
+  padding: 0.65rem 0;
+}
+
+.hrms-curriculum dt {
+  font-weight: 700;
+}
+
+.hrms-curriculum dd {
+  margin: 0.2rem 0 0.85rem;
+  line-height: 1.65;
 }

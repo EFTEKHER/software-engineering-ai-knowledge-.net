@@ -1,15 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Database, Play } from "lucide-react";
-import {
-  challenges,
-  hrmsSchema,
-  sqlServerTopics,
-} from "../content/hrmsOptimization";
+import { challenges, hrmsSchema } from "../content/hrmsOptimization";
+import curriculum from "../content/hrmsSqlCurriculum.json";
 import "./hrmsOptimization.css";
 
 export default function HrmsOptimization() {
   const [selected, setSelected] = useState(challenges[0].id);
   const challenge = challenges.find(({ id }) => id === selected);
+
+  function openCurriculum(event) {
+    event.preventDefault();
+    const heading = document.getElementById("hrms-curriculum");
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView();
+  }
 
   return (
     <section className="hrms-module" aria-labelledby="hrms-title">
@@ -18,8 +22,12 @@ export default function HrmsOptimization() {
         <h1 id="hrms-title">SQL Query Optimization</h1>
         <p>
           Tune complex queries for a human resources management system (HRMS).
-          Write SQL, inspect query plans, and work through each solution.
+          Study all 25 chapters, then write SQL, inspect query plans, and work
+          through HRMS solutions.
         </p>
+        <a href="#hrms-curriculum" onClick={openCurriculum}>
+          Browse the full SQL curriculum
+        </a>
       </header>
       <div className="hrms-layout">
         <nav className="hrms-panel hrms-nav" aria-label="HRMS challenges">
@@ -38,21 +46,49 @@ export default function HrmsOptimization() {
         </nav>
         <Challenge key={challenge.id} challenge={challenge} />
       </div>
-      <div className="hrms-panel hrms-reference">
-        <h2>SQL Server tuning notes</h2>
-        <p>
-          The editor runs SQLite on synthetic HRMS records. These notes connect
-          the exercises to the SQL Server topics in chapters 20–25 of
-          <cite> SQL for Software Developers &amp; Backend Engineers</cite>.
-        </p>
-        <div className="hrms-topics">
-          {sqlServerTopics.map(({ title, detail }) => (
-            <section key={title}>
-              <h3>{title}</h3>
-              <p>{detail}</p>
-            </section>
-          ))}
-        </div>
+      <SqlCurriculum />
+    </section>
+  );
+}
+
+function SqlCurriculum() {
+  return (
+    <section
+      className="hrms-panel hrms-reference"
+      aria-labelledby="hrms-curriculum"
+    >
+      <h2 id="hrms-curriculum" tabIndex={-1}>
+        Full SQL curriculum
+      </h2>
+      <p>
+        All 25 chapters of{" "}
+        <cite>SQL for Software Developers &amp; Backend Engineers</cite> are
+        adapted to HRMS. The practice editor runs SQLite. Topics such as stored
+        procedures, Query Store, and SQL Server locking use T-SQL guidance.
+      </p>
+      <div className="hrms-curriculum">
+        {curriculum.map(({ title, chapters }) => (
+          <section key={title}>
+            <h3>{title}</h3>
+            {chapters.map(({ number, title, topics }) => (
+              <details key={number}>
+                <summary>
+                  {number}. {title}
+                </summary>
+                <dl>
+                  {topics.map(({ number, title, detail }) => (
+                    <React.Fragment key={number}>
+                      <dt>
+                        {number} {title}
+                      </dt>
+                      <dd>{detail}</dd>
+                    </React.Fragment>
+                  ))}
+                </dl>
+              </details>
+            ))}
+          </section>
+        ))}
       </div>
     </section>
   );
@@ -141,14 +177,16 @@ function Challenge({ challenge }) {
         <button type="button" onClick={() => setQuery(challenge.starter)}>
           Reset query
         </button>
-        <label>
-          <input
-            type="checkbox"
-            checked={indexed}
-            onChange={(event) => setIndexed(event.target.checked)}
-          />
-          Apply suggested indexes
-        </label>
+        {challenge.index && (
+          <label>
+            <input
+              type="checkbox"
+              checked={indexed}
+              onChange={(event) => setIndexed(event.target.checked)}
+            />
+            Apply suggested indexes
+          </label>
+        )}
       </div>
       <div aria-live="polite" aria-busy={busy} className="hrms-results">
         {busy && <p>Running SQL…</p>}
@@ -166,12 +204,16 @@ function Challenge({ challenge }) {
         <button type="button" onClick={() => setQuery(challenge.solution)}>
           Load solution
         </button>
-        <h3>Suggested indexes</h3>
-        <pre>{challenge.index}</pre>
-        <p>
-          Run Explain plan before and after applying the indexes. Look for
-          changes in access paths, sorting, and grouping.
-        </p>
+        {challenge.index && (
+          <>
+            <h3>Suggested indexes</h3>
+            <pre>{challenge.index}</pre>
+            <p>
+              Run Explain plan before and after applying the indexes. Look for
+              changes in access paths, sorting, and grouping.
+            </p>
+          </>
+        )}
       </details>
     </article>
   );

@@ -51,7 +51,8 @@ INSERT INTO payroll VALUES
   (1, 1, '2026-01-31', 950000), (2, 2, '2026-01-31', 800000),
   (3, 3, '2026-01-31', 700000), (4, 4, '2026-01-31', 500000),
   (5, 2, '2026-01-31', 50000), (6, 6, '2026-01-31', 700000),
-  (7, 2, '2026-02-28', 810000), (8, 5, '2025-12-31', 510000);
+  (7, 2, '2026-02-28', 810000), (8, 5, '2025-12-31', 510000),
+  (9, 2, '2025-12-31', 780000);
 `;
 
 export const challenges = [
@@ -259,32 +260,200 @@ WHERE depth > 0 AND active = 1
 ORDER BY depth, id;`,
     index: `CREATE INDEX employee_manager ON employees(manager_id);`,
   },
-];
 
-export const sqlServerTopics = [
   {
-    title: "Indexes and write cost",
-    detail:
-      "Compare clustered storage and nonclustered B-trees. Put equality keys before range keys for a targeted access path. Use INCLUDE for payload columns and consider a filtered index for approved leave. Review existing indexes for overlapping keys and measure write cost before keeping a new index.",
+    id: "department-counts",
+    title: "Department headcount including zeroes",
+    topic: "Outer joins and conditional aggregation",
+    prompt:
+      "Count active employees in every department on the roster, including departments with zero active employees. Include the requested Finance department even though it has no employee records.",
+    starter: "SELECT DISTINCT department FROM employees ORDER BY department;",
+    steps: [
+      "Build a department list from the roster and union in Finance. In production, use the department master table.",
+      "Left join employee rows and put the active predicate in ON to keep empty departments.",
+      "Count the matched employee IDs. COUNT(*) would count the placeholder row for Finance.",
+    ],
+    solution: `WITH departments AS (
+  SELECT department FROM employees
+  UNION SELECT 'Finance'
+)
+SELECT d.department, COUNT(e.id) AS active_count
+FROM departments AS d
+LEFT JOIN employees AS e ON e.department = d.department AND e.active = 1
+GROUP BY d.department
+ORDER BY d.department;`,
+    index:
+      "CREATE INDEX active_department ON employees(department) WHERE active = 1;",
   },
   {
-    title: "Execution plans and cardinality",
-    detail:
-      "In SQL Server Management Studio, enable the actual execution plan. Compare estimated and actual rows, then inspect residual predicates, lookups, join choices, sorts, and spills. In SQLite, EXPLAIN QUERY PLAN shows access paths, and ANALYZE collects planner statistics.",
+    id: "payroll-rank",
+    title: "Rank every employee by January pay",
+    topic: "NULL handling, totals, and ranking",
+    prompt:
+      "Show every employee’s January gross pay in cents and rank all employees by total. Give employees without payments zero and preserve ties.",
+    starter:
+      "SELECT employee_id, amount_cents FROM payroll ORDER BY employee_id;",
+    steps: [
+      "Sum January components at employee grain using a half-open range.",
+      "Left join the totals to the roster and use COALESCE for missing payroll.",
+      "Use DENSE_RANK on the computed total. Sort ties by employee ID in the final output.",
+    ],
+    solution: `WITH totals AS (
+  SELECT employee_id, SUM(amount_cents) AS gross
+  FROM payroll
+  WHERE pay_date >= '2026-01-01' AND pay_date < '2026-02-01'
+  GROUP BY employee_id
+), roster AS (
+  SELECT e.id, COALESCE(t.gross, 0) AS gross
+  FROM employees AS e LEFT JOIN totals AS t ON t.employee_id = e.id
+)
+SELECT id, gross, DENSE_RANK() OVER (ORDER BY gross DESC) AS pay_rank
+FROM roster
+ORDER BY pay_rank, id;`,
+    index:
+      "CREATE INDEX payroll_month ON payroll(pay_date, employee_id, amount_cents);",
   },
   {
-    title: "Statistics, parameter types, and plan reuse",
-    detail:
-      "Check for stale statistics and skew by comparing a large department with a rare one. Bind parameters with the column’s type and inspect the plan for a conversion on the indexed side. In SQL Server, compare cached plans across parameter values and review Query Store before testing recompilation or parameter-sensitive plans.",
+    id: "rolling-attendance",
+    title: "Flag rolling seven-day attendance load",
+    topic: "Rolling windows and range lookups",
+    prompt:
+      "For each January day with logged attendance, flag employees who logged at least four shifts that day and the previous six calendar days combined. Include December records inside the first rolling window.",
+    starter:
+      "SELECT employee_id, work_date FROM attendance ORDER BY employee_id, work_date;",
+    steps: [
+      "Choose distinct January employee and date pairs as anchors.",
+      "For each anchor, count shifts between its date minus six days and the anchor, inclusive. Apply the date calculation to the anchor instead of the indexed shift date.",
+      "Group by anchor and filter with HAVING. Try the employee/date index for each range lookup.",
+    ],
+    solution: `WITH anchors AS (
+  SELECT DISTINCT employee_id, work_date
+  FROM attendance
+  WHERE work_date >= '2026-01-01' AND work_date < '2026-02-01'
+)
+SELECT a.employee_id, a.work_date, COUNT(*) AS shift_count
+FROM anchors AS a
+JOIN attendance AS s ON s.employee_id = a.employee_id
+  AND s.work_date BETWEEN date(a.work_date, '-6 days') AND a.work_date
+GROUP BY a.employee_id, a.work_date
+HAVING COUNT(*) >= 4
+ORDER BY a.employee_id, a.work_date;`,
+    index:
+      "CREATE INDEX employee_shift_date ON attendance(employee_id, work_date);",
   },
   {
-    title: "Measure and verify",
-    detail:
-      "Capture a baseline with SET STATISTICS IO, TIME ON in SQL Server. Validate the result grain, rows, ties, totals, and date boundaries after each rewrite. Compare reads and actual plans on representative volumes, then use Query Store history to watch for regressions.",
+    id: "running-payroll",
+    title: "Running payroll with opening balances",
+    topic: "Window frames and stable event order",
+    prompt:
+      "For every January payroll entry, show its employee’s cumulative cents through that entry, including payments before January. Break same-day ties by entry ID.",
+    starter:
+      "SELECT id, employee_id, pay_date, amount_cents FROM payroll ORDER BY employee_id, pay_date, id;",
+    steps: [
+      "Compute SUM OVER per employee, ordered by pay_date and ID with an explicit ROWS frame.",
+      "Keep older entries in the input to preserve opening balances. Exclude future entries early.",
+      "Filter January in the outer query. Compare how the employee/date/ID index serves the window order.",
+    ],
+    solution: `WITH running AS (
+  SELECT id, employee_id, pay_date,
+         SUM(amount_cents) OVER (
+           PARTITION BY employee_id ORDER BY pay_date, id
+           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+         ) AS running_cents
+  FROM payroll
+  WHERE pay_date < '2026-02-01'
+)
+SELECT employee_id, id, pay_date, running_cents
+FROM running
+WHERE pay_date >= '2026-01-01'
+ORDER BY employee_id, pay_date, id;`,
+    index:
+      "CREATE INDEX employee_pay_order ON payroll(employee_id, pay_date, id, amount_cents);",
   },
   {
-    title: "Schema design and anti-patterns",
-    detail:
-      "Keep attendance, leave, payroll, and employee relationships in dedicated tables with foreign keys. Store money as exact cents or decimal and use typed date columns in SQL Server. Avoid comma-separated IDs, generic entity attributes for core report fields, and blanket denormalization.",
+    id: "missing-payroll",
+    title: "Find active employees without February payroll",
+    topic: "Anti-joins and NULL-safe existence checks",
+    prompt:
+      "List active employees who have no February payroll entry, including employees who received payroll in January.",
+    starter: "SELECT id, name FROM employees WHERE active = 1 ORDER BY id;",
+    steps: [
+      "Start with active roster entries.",
+      "Use a correlated NOT EXISTS with both employee ID and the February date range.",
+      "Inspect the plan with and without an index on employee and pay date.",
+    ],
+    solution: `SELECT e.id, e.name
+FROM employees AS e
+WHERE e.active = 1 AND NOT EXISTS (
+  SELECT 1 FROM payroll AS p
+  WHERE p.employee_id = e.id
+    AND p.pay_date >= '2026-02-01' AND p.pay_date < '2026-03-01'
+)
+ORDER BY e.id;`,
+    index: "CREATE INDEX employee_pay_date ON payroll(employee_id, pay_date);",
+  },
+  {
+    id: "manager-chain",
+    title: "Walk an employee’s manager chain",
+    topic: "Recursive CTEs and primary-key lookups",
+    prompt:
+      "Starting from employee 6, return each ancestor up to the head of the organization, closest first. Include inactive managers and guard against cycles.",
+    starter: "SELECT id, name, manager_id FROM employees WHERE id = 6;",
+    steps: [
+      "Anchor at the requested employee. Then follow manager_id to the next employee’s primary key.",
+      "Track visited IDs with delimiters and stop on repeats. A NULL manager naturally ends the chain.",
+      "Exclude the anchor and order by depth. The existing primary key supports the parent lookup.",
+    ],
+    solution: `WITH RECURSIVE chain(id, name, manager_id, depth, path) AS (
+  SELECT id, name, manager_id, 0, '/' || id || '/' FROM employees WHERE id = 6
+  UNION ALL
+  SELECT e.id, e.name, e.manager_id, c.depth + 1, c.path || e.id || '/'
+  FROM chain AS c JOIN employees AS e ON e.id = c.manager_id
+  WHERE instr(c.path, '/' || e.id || '/') = 0
+)
+SELECT id, name, depth
+FROM chain
+WHERE depth > 0
+ORDER BY depth;`,
+  },
+  {
+    id: "monthly-growth",
+    title: "Month-over-month payroll growth",
+    topic: "Calendar scaffolding, LAG, and NULLIF",
+    prompt:
+      "Show January and February payroll by department with the previous calendar month’s total and growth percentage. Start the comparison in January. Use zero for empty months and leave growth unknown when the prior period is outside the report or had zero payroll.",
+    starter:
+      "SELECT employee_id, pay_date, amount_cents FROM payroll ORDER BY pay_date;",
+    steps: [
+      "Build the calendar months and department list, then cross join to scaffold missing combinations.",
+      "Summarize payroll once at department/month grain and left join to the scaffold.",
+      "Use LAG over each department’s calendar and divide by NULLIF(previous, 0). Calculate percentages using decimal arithmetic.",
+    ],
+    solution: `WITH months(month_start) AS (
+  VALUES ('2026-01-01'), ('2026-02-01')
+), departments AS (
+  SELECT DISTINCT department FROM employees
+), totals AS (
+  SELECT e.department, date(p.pay_date, 'start of month') AS month_start,
+         SUM(p.amount_cents) AS gross_cents
+  FROM payroll AS p JOIN employees AS e ON e.id = p.employee_id
+  WHERE p.pay_date >= '2026-01-01' AND p.pay_date < '2026-03-01'
+  GROUP BY e.department, date(p.pay_date, 'start of month')
+), monthly AS (
+  SELECT d.department, m.month_start, COALESCE(t.gross_cents, 0) AS gross_cents
+  FROM departments AS d CROSS JOIN months AS m
+  LEFT JOIN totals AS t ON t.department = d.department AND t.month_start = m.month_start
+), comparison AS (
+  SELECT *, LAG(gross_cents) OVER (
+    PARTITION BY department ORDER BY month_start
+  ) AS previous_cents
+  FROM monthly
+)
+SELECT department, month_start, gross_cents, previous_cents,
+       ROUND(100.0 * (gross_cents - previous_cents) / NULLIF(previous_cents, 0), 2) AS growth_pct
+FROM comparison
+ORDER BY department, month_start;`,
+    index:
+      "CREATE INDEX payroll_month ON payroll(pay_date, employee_id, amount_cents);",
   },
 ];
