@@ -51,6 +51,7 @@ import { allLessons } from "./content/lessons";
 const LessonReader = lazy(() => import("./components/LessonReader"));
 const Notebook = lazy(() => import("./components/Notebook"));
 const PracticeLab = lazy(() => import("./components/PracticeLab"));
+const HrmsOptimization = lazy(() => import("./components/HrmsOptimization"));
 const BankingGuide = lazy(() => import("./components/BankingGuide"));
 const BeginnerGuide = lazy(() => import("./components/BeginnerGuide"));
 const Sandbox = lazy(() => import("./components/Sandbox"));
@@ -102,13 +103,18 @@ function useLessonRoute() {
   };
   return [value, update];
 }
+const hrmsPage = "SQL Optimization";
+const hrmsHash = "#sql-optimization";
+
 function App() {
   const [page, setPage] = useState(() =>
       window.location.hash.startsWith("#bank")
         ? "Banking .NET"
         : window.location.hash.startsWith("#dsa")
           ? "DSA Patterns"
-          : "Learning path",
+          : window.location.hash === hrmsHash
+            ? hrmsPage
+            : "Learning path",
     ),
     [stage, setStage] = useState(-1),
     [level, setLevel] = useState("All levels"),
@@ -153,17 +159,24 @@ function App() {
     return () => window.removeEventListener("open-sandbox", go);
   }, []);
   useEffect(() => {
-    const toDsa = () => {
+    const syncWorkspaceRoute = (event) => {
       if (window.location.hash.startsWith("#bank")) {
         setPage("Banking .NET");
         setStage(-1);
       } else if (window.location.hash.startsWith("#dsa")) {
         setPage("DSA Patterns");
         setStage(-1);
+      } else if (window.location.hash === hrmsHash) {
+        setPage(hrmsPage);
+        setStage(-1);
+      } else if (new URL(event.oldURL).hash === hrmsHash) {
+        setPage((current) =>
+          current === hrmsPage ? "Learning path" : current,
+        );
       }
     };
-    window.addEventListener("hashchange", toDsa);
-    return () => window.removeEventListener("hashchange", toDsa);
+    window.addEventListener("hashchange", syncWorkspaceRoute);
+    return () => window.removeEventListener("hashchange", syncWorkspaceRoute);
   }, []);
   useEffect(() => {
     try {
@@ -189,6 +202,23 @@ function App() {
       localStorage.setItem("mastery-language", lang);
     } catch {}
   }, [lang]);
+  const navigateWorkspace = (destination) => {
+    setPage(destination);
+    if (destination === hrmsPage) window.location.hash = hrmsHash;
+    else if (destination === "Banking .NET") window.location.hash = "bank";
+    else if (
+      window.location.hash.startsWith("#bank") ||
+      window.location.hash === hrmsHash
+    ) {
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      );
+    }
+    setStage(-1);
+    setQuery("");
+  };
   const open = (m, t = 0) => setLesson({ m, t });
   const mark = () => {
     let k = `${lesson.m.id}-${lesson.t}`;
@@ -235,6 +265,7 @@ function App() {
             [Shield, "Banking .NET"],
             [Map, "Learning path"],
             [Puzzle, "DSA Patterns"],
+            [Database, hrmsPage],
             [Code2, "Playground"],
             [Terminal, "Sandbox"],
             [BookOpen, "My notebook"],
@@ -242,18 +273,7 @@ function App() {
             <button
               key={n}
               className={page === n ? "active" : ""}
-              onClick={() => {
-                setPage(n);
-                if (n === "Banking .NET") window.location.hash = "bank";
-                else if (window.location.hash.startsWith("#bank"))
-                  window.history.replaceState(
-                    null,
-                    "",
-                    window.location.pathname,
-                  );
-                setStage(-1);
-                setQuery("");
-              }}
+              onClick={() => navigateWorkspace(n)}
             >
               <I size={18} />
               {n}
@@ -272,8 +292,8 @@ function App() {
               key={s}
               className={stage === i ? "chosen" : ""}
               onClick={() => {
+                navigateWorkspace("Learning path");
                 setStage(i);
-                setPage("Learning path");
               }}
             >
               <span className={"stage-dot c" + i}></span>
@@ -344,6 +364,7 @@ function App() {
             ["Beginner guide", "Start here"],
             ["Banking .NET", "Banking"],
             ["DSA Patterns", "DSA"],
+            [hrmsPage, "SQL Optimization"],
             ["Playground", "Lab"],
             ["Sandbox", "Run code"],
             ["My notebook", "Notes"],
@@ -351,283 +372,288 @@ function App() {
             <button
               key={p}
               className={page === p ? "selected" : ""}
-              onClick={() => {
-                setPage(p);
-                if (p === "Banking .NET") window.location.hash = "bank";
-                else if (window.location.hash.startsWith("#bank"))
-                  window.history.replaceState(
-                    null,
-                    "",
-                    window.location.pathname,
-                  );
-                setStage(-1);
-                setQuery("");
-              }}
+              onClick={() => navigateWorkspace(p)}
             >
               {n}
             </button>
           ))}
         </nav>
         <main>
-          <div className="eyebrow">
-            <span className="live-dot" /> YOUR ENGINEERING JOURNEY STARTS HERE
-          </div>
-          <section className="intro">
-            <div>
-              <h1>
-                {page === "DSA Patterns" ? (
-                  <>
-                    Think in <em>patterns.</em>
-                  </>
-                ) : page === "Banking .NET" ? (
-                  "Your first banking release."
-                ) : page === "Beginner guide" ? (
-                  "Every expert started here."
-                ) : page === "My notebook" ? (
-                  "Your knowledge, connected."
-                ) : page === "Playground" ? (
-                  "Learn it. Then build it."
-                ) : page === "Sandbox" ? (
-                  "Write it. Run it. Own it."
-                ) : page === "Overview" ? (
-                  "Small steps. Real progress."
-                ) : (
-                  <>
-                    From your first line of code
-                    <br />
-                    to <em>production-ready.</em>
-                  </>
-                )}
-              </h1>
-              <p>
-                {lang === "বাংলা" ? (
-                  "শুরু থেকে শিখুন, কোড লিখুন, আত্মবিশ্বাসের সাথে এগিয়ে যান।"
-                ) : (
-                  <>
-                    A clear path to mastering C#, .NET, and modern software
-                    engineering.
-                    <br />
-                    Learn in Bangla + English. Understand visually. Build with
-                    confidence.
-                  </>
-                )}
-              </p>
-            </div>
-            <div className="orbit-art" aria-hidden="true">
-              <div className="orbit o1" />
-              <div className="orbit o2" />
-              <div className="orbit o3" />
-              <span className="orb a">{"</>"}</span>
-              <span className="orb b">C#</span>
-              <span className="orb c">◇</span>
-              <span className="core">
-                .NET<small>YOUR NEXT CHAPTER</small>
-              </span>
-              <span className="star s1">✦</span>
-              <span className="star s2">+</span>
-            </div>
-          </section>
-          <div className="stats">
-            {[
-              [Layers, String(modules.length), "in-depth modules"],
-              [Code2, String(allLessons.length), "concepts to explore"],
-              [Target, "3", "levels of mastery"],
-              [GitBranch, "One", "connected learning path"],
-            ].map(([I, v, l]) => (
-              <div className="stat" key={l}>
-                <span className="stat-icon">
-                  <I size={19} />
-                </span>
-                <strong>{v}</strong>
-                <span>{l}</span>
-              </div>
-            ))}
-          </div>
-          <section className="continue">
-            <div className="continue-icon">
-              <GitBranch size={27} />
-            </div>
-            <div>
-              <div className="micro">
-                {done.length ? "KEEP THE MOMENTUM" : "A GREAT PLACE TO START"}{" "}
-                <span>•</span> STAGE 01
-              </div>
-              <h3>
-                {done.length
-                  ? "Your next step is waiting"
-                  : "Your journey begins with Git"}
-              </h3>
-              <p>
-                {lang === "English"
-                  ? "Start with the fundamentals. Build something extraordinary."
-                  : "ছোট ছোট পদক্ষেপে বড় কিছু। One concept at a time."}
-              </p>
-            </div>
-            <div className="continue-right">
-              <button
-                className="primary"
-                onClick={() =>
-                  (() => {
-                    const m =
-                      modules.find((m) =>
-                        m.topics.some((_, t) => !done.includes(`${m.id}-${t}`)),
-                      ) || modules[0];
-                    open(
-                      m,
-                      Math.max(
-                        0,
-                        m.topics.findIndex(
-                          (_, t) => !done.includes(`${m.id}-${t}`),
-                        ),
-                      ),
-                    );
-                  })()
-                }
-              >
-                {done.length ? "Continue learning" : "Start learning"}
-                <ArrowRight size={16} />
-              </button>
-              <small>No experience needed. Just curiosity.</small>
-            </div>
-          </section>
-          {page === "DSA Patterns" ? (
-            <DsaPatterns lang={lang} />
-          ) : page === "Banking .NET" ? (
-            <BankingGuide lang={lang} />
-          ) : page === "Beginner guide" ? (
-            <BeginnerGuide lang={lang} />
-          ) : page === "Playground" ? (
-            <PracticeLab lang={lang} />
-          ) : page === "Sandbox" ? (
-            <Sandbox key={sandboxKey} lang={lang} />
-          ) : page === "My notebook" ? (
-            <Notebook onOpen={open} />
+          {page === hrmsPage ? (
+            <HrmsOptimization />
           ) : (
             <>
-              <section className="study-spotlight" aria-label="C# study module">
-                <div className="study-monogram" aria-hidden="true">
-                  C#
-                </div>
-                <div className="study-copy">
-                  <span className="study-eyebrow">
-                    NEW · DEDICATED C# MODULE
-                  </span>
-                  <h2>A clear path from your first line to confident C#.</h2>
-                  <p>
-                    39 focused lessons · Console to LINQ, memory &amp; files ·
-                    English + বাংলা
-                  </p>
-                  <div className="study-tags">
-                    <span>01–10 Foundations</span>
-                    <span>11–18 Methods &amp; objects</span>
-                    <span>19–29 LINQ &amp; I/O</span>
-                    <span>30–39 Backend C#</span>
-                  </div>
-                </div>
-                <button
-                  className="primary"
-                  onClick={() => open(modules[17], 0)}
-                >
-                  Start C# <ArrowRight size={16} />
-                </button>
-              </section>
-              <section className="path-heading">
+              <div className="eyebrow">
+                <span className="live-dot" /> YOUR ENGINEERING JOURNEY STARTS
+                HERE
+              </div>
+              <section className="intro">
                 <div>
-                  <h2>
-                    {page === "Overview"
-                      ? "Your progress"
-                      : "Your learning path"}{" "}
-                    <span className="pill">THE COMPLETE ROADMAP</span>
-                  </h2>
+                  <h1>
+                    {page === "DSA Patterns" ? (
+                      <>
+                        Think in <em>patterns.</em>
+                      </>
+                    ) : page === "Banking .NET" ? (
+                      "Your first banking release."
+                    ) : page === "Beginner guide" ? (
+                      "Every expert started here."
+                    ) : page === "My notebook" ? (
+                      "Your knowledge, connected."
+                    ) : page === "Playground" ? (
+                      "Learn it. Then build it."
+                    ) : page === "Sandbox" ? (
+                      "Write it. Run it. Own it."
+                    ) : page === "Overview" ? (
+                      "Small steps. Real progress."
+                    ) : (
+                      <>
+                        From your first line of code
+                        <br />
+                        to <em>production-ready.</em>
+                      </>
+                    )}
+                  </h1>
                   <p>
-                    {page === "Overview"
-                      ? `${done.length} concepts completed · ${pct}% of your engineering journey`
-                      : "Four stages. Real-world skills. A stronger engineer at every step."}
+                    {lang === "বাংলা" ? (
+                      "শুরু থেকে শিখুন, কোড লিখুন, আত্মবিশ্বাসের সাথে এগিয়ে যান।"
+                    ) : (
+                      <>
+                        A clear path to mastering C#, .NET, and modern software
+                        engineering.
+                        <br />
+                        Learn in Bangla + English. Understand visually. Build
+                        with confidence.
+                      </>
+                    )}
                   </p>
                 </div>
-                <div className="overall">
-                  <span>
-                    Overall progress <b>{pct}%</b>
+                <div className="orbit-art" aria-hidden="true">
+                  <div className="orbit o1" />
+                  <div className="orbit o2" />
+                  <div className="orbit o3" />
+                  <span className="orb a">{"</>"}</span>
+                  <span className="orb b">C#</span>
+                  <span className="orb c">◇</span>
+                  <span className="core">
+                    .NET<small>YOUR NEXT CHAPTER</small>
                   </span>
-                  <div className="track">
-                    <i style={{ width: `${pct}%` }} />
-                  </div>
-                  <small>
-                    {done.length} of {allLessons.length} concepts completed
-                  </small>
+                  <span className="star s1">✦</span>
+                  <span className="star s2">+</span>
                 </div>
               </section>
-              <div className="filters">
-                <div className="stage-tabs">
-                  <button
-                    className={stage === -1 ? "selected" : ""}
-                    onClick={() => setStage(-1)}
-                  >
-                    All stages <span>{modules.length}</span>
-                  </button>
-                  {stages.map((s, i) => (
-                    <button
-                      key={s}
-                      className={stage === i ? "selected" : ""}
-                      onClick={() => setStage(i)}
-                    >
-                      <span className={"stage-dot c" + i} />
-                      {
-                        [
-                          "Foundations",
-                          "Engineering",
-                          "System Design & Cloud",
-                          "Agentic AI",
-                        ][i]
-                      }
-                    </button>
-                  ))}
+              <div className="stats">
+                {[
+                  [Layers, String(modules.length), "in-depth modules"],
+                  [Code2, String(allLessons.length), "concepts to explore"],
+                  [Target, "3", "levels of mastery"],
+                  [GitBranch, "One", "connected learning path"],
+                ].map(([I, v, l]) => (
+                  <div className="stat" key={l}>
+                    <span className="stat-icon">
+                      <I size={19} />
+                    </span>
+                    <strong>{v}</strong>
+                    <span>{l}</span>
+                  </div>
+                ))}
+              </div>
+              <section className="continue">
+                <div className="continue-icon">
+                  <GitBranch size={27} />
                 </div>
-                <div className="filter-tools">
-                  <select
-                    aria-label="Skill level"
-                    value={level}
-                    onChange={(e) => setLevel(e.target.value)}
-                  >
-                    {levels.map((x) => (
-                      <option key={x}>{x}</option>
-                    ))}
-                  </select>
+                <div>
+                  <div className="micro">
+                    {done.length
+                      ? "KEEP THE MOMENTUM"
+                      : "A GREAT PLACE TO START"}{" "}
+                    <span>•</span> STAGE 01
+                  </div>
+                  <h3>
+                    {done.length
+                      ? "Your next step is waiting"
+                      : "Your journey begins with Git"}
+                  </h3>
+                  <p>
+                    {lang === "English"
+                      ? "Start with the fundamentals. Build something extraordinary."
+                      : "ছোট ছোট পদক্ষেপে বড় কিছু। One concept at a time."}
+                  </p>
+                </div>
+                <div className="continue-right">
                   <button
-                    aria-label="Toggle list view"
+                    className="primary"
                     onClick={() =>
-                      setView((v) => (v === "grid" ? "list" : "grid"))
+                      (() => {
+                        const m =
+                          modules.find((m) =>
+                            m.topics.some(
+                              (_, t) => !done.includes(`${m.id}-${t}`),
+                            ),
+                          ) || modules[0];
+                        open(
+                          m,
+                          Math.max(
+                            0,
+                            m.topics.findIndex(
+                              (_, t) => !done.includes(`${m.id}-${t}`),
+                            ),
+                          ),
+                        );
+                      })()
                     }
                   >
-                    <LayoutDashboard size={17} />
+                    {done.length ? "Continue learning" : "Start learning"}
+                    <ArrowRight size={16} />
                   </button>
+                  <small>No experience needed. Just curiosity.</small>
                 </div>
-              </div>
-              {stage < 0 ? (
+              </section>
+              {page === "DSA Patterns" ? (
+                <DsaPatterns lang={lang} />
+              ) : page === "Banking .NET" ? (
+                <BankingGuide lang={lang} />
+              ) : page === "Beginner guide" ? (
+                <BeginnerGuide lang={lang} />
+              ) : page === "Playground" ? (
+                <PracticeLab lang={lang} />
+              ) : page === "Sandbox" ? (
+                <Sandbox key={sandboxKey} lang={lang} />
+              ) : page === "My notebook" ? (
+                <Notebook onOpen={open} />
+              ) : (
                 <>
-                  {stages.map((s, i) => (
+                  <section
+                    className="study-spotlight"
+                    aria-label="C# study module"
+                  >
+                    <div className="study-monogram" aria-hidden="true">
+                      C#
+                    </div>
+                    <div className="study-copy">
+                      <span className="study-eyebrow">
+                        NEW · DEDICATED C# MODULE
+                      </span>
+                      <h2>
+                        A clear path from your first line to confident C#.
+                      </h2>
+                      <p>
+                        39 focused lessons · Console to LINQ, memory &amp; files
+                        · English + বাংলা
+                      </p>
+                      <div className="study-tags">
+                        <span>01–10 Foundations</span>
+                        <span>11–18 Methods &amp; objects</span>
+                        <span>19–29 LINQ &amp; I/O</span>
+                        <span>30–39 Backend C#</span>
+                      </div>
+                    </div>
+                    <button
+                      className="primary"
+                      onClick={() => open(modules[17], 0)}
+                    >
+                      Start C# <ArrowRight size={16} />
+                    </button>
+                  </section>
+                  <section className="path-heading">
+                    <div>
+                      <h2>
+                        {page === "Overview"
+                          ? "Your progress"
+                          : "Your learning path"}{" "}
+                        <span className="pill">THE COMPLETE ROADMAP</span>
+                      </h2>
+                      <p>
+                        {page === "Overview"
+                          ? `${done.length} concepts completed · ${pct}% of your engineering journey`
+                          : "Four stages. Real-world skills. A stronger engineer at every step."}
+                      </p>
+                    </div>
+                    <div className="overall">
+                      <span>
+                        Overall progress <b>{pct}%</b>
+                      </span>
+                      <div className="track">
+                        <i style={{ width: `${pct}%` }} />
+                      </div>
+                      <small>
+                        {done.length} of {allLessons.length} concepts completed
+                      </small>
+                    </div>
+                  </section>
+                  <div className="filters">
+                    <div className="stage-tabs">
+                      <button
+                        className={stage === -1 ? "selected" : ""}
+                        onClick={() => setStage(-1)}
+                      >
+                        All stages <span>{modules.length}</span>
+                      </button>
+                      {stages.map((s, i) => (
+                        <button
+                          key={s}
+                          className={stage === i ? "selected" : ""}
+                          onClick={() => setStage(i)}
+                        >
+                          <span className={"stage-dot c" + i} />
+                          {
+                            [
+                              "Foundations",
+                              "Engineering",
+                              "System Design & Cloud",
+                              "Agentic AI",
+                            ][i]
+                          }
+                        </button>
+                      ))}
+                    </div>
+                    <div className="filter-tools">
+                      <select
+                        aria-label="Skill level"
+                        value={level}
+                        onChange={(e) => setLevel(e.target.value)}
+                      >
+                        {levels.map((x) => (
+                          <option key={x}>{x}</option>
+                        ))}
+                      </select>
+                      <button
+                        aria-label="Toggle list view"
+                        onClick={() =>
+                          setView((v) => (v === "grid" ? "list" : "grid"))
+                        }
+                      >
+                        <LayoutDashboard size={17} />
+                      </button>
+                    </div>
+                  </div>
+                  {stage < 0 ? (
+                    <>
+                      {stages.map((s, i) => (
+                        <ModuleSection
+                          key={s}
+                          title={s}
+                          index={i}
+                          items={shown.filter((m) => m.stage === i)}
+                          done={done}
+                          open={open}
+                          level={level}
+                          view={view}
+                        />
+                      ))}
+                    </>
+                  ) : (
                     <ModuleSection
-                      key={s}
-                      title={s}
-                      index={i}
-                      items={shown.filter((m) => m.stage === i)}
+                      title={stages[stage]}
+                      index={stage}
+                      items={shown}
                       done={done}
                       open={open}
                       level={level}
                       view={view}
                     />
-                  ))}
+                  )}
                 </>
-              ) : (
-                <ModuleSection
-                  title={stages[stage]}
-                  index={stage}
-                  items={shown}
-                  done={done}
-                  open={open}
-                  level={level}
-                  view={view}
-                />
               )}
             </>
           )}
