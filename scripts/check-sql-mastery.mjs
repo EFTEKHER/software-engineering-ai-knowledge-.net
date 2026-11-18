@@ -1,11 +1,13 @@
 // Integrity check for the SQL Server Mastery module.
-// - 25 modules, every lesson bilingual (English + Bangla)
+// - Start Here + 25 modules, quizzes and player scenes; every lesson bilingual (English + Bangla)
 // - SQL Server / T-SQL only: no syntax or mentions from other database engines
 import {
   chapters,
   parts,
   bankDbSetup,
+  quizzes,
 } from "../src/content/sqlMastery/index.js";
+import { buildScenes, codeSteps } from "../src/content/sqlMastery/episodes.js";
 
 const errors = [];
 const bangla = /[ঀ-৿]/;
@@ -36,15 +38,17 @@ function scan(where, text) {
 }
 
 if (parts.length !== 6) errors.push(`expected 6 parts, found ${parts.length}`);
-if (chapters.length !== 25)
-  errors.push(`expected 25 modules, found ${chapters.length}`);
+if (chapters.length !== 26)
+  errors.push(
+    `expected 26 modules (Start Here + 25), found ${chapters.length}`,
+  );
 
 const slugs = new Set();
 let lessons = 0;
 let examples = 0;
 chapters.forEach((c, i) => {
   const at = `Module ${c.id}`;
-  if (c.id !== i + 1) errors.push(`${at}: ids must be sequential`);
+  if (c.id !== i) errors.push(`${at}: ids must be sequential`);
   if (slugs.has(c.slug)) errors.push(`${at}: duplicate slug ${c.slug}`);
   slugs.add(c.slug);
   if (!(c.part >= 0 && c.part < parts.length)) errors.push(`${at}: bad part`);
@@ -84,6 +88,41 @@ chapters.forEach((c, i) => {
   });
 });
 
+// Every module has a quiz; every episode builds into playable scenes.
+let scenesTotal = 0;
+for (const c of chapters) {
+  const qs = quizzes[c.slug];
+  if (!qs || qs.length < 2)
+    errors.push(`Module ${c.id}: needs a quiz with at least 2 questions`);
+  (qs || []).forEach((q, k) => {
+    if (!q.q || !bangla.test(q.qBn || ""))
+      errors.push(`Module ${c.id} quiz ${k + 1}: bilingual question missing`);
+    if (!(q.answer >= 0 && q.answer < q.options.length))
+      errors.push(`Module ${c.id} quiz ${k + 1}: bad answer index`);
+    if (!q.why?.en || !bangla.test(q.why?.bn || ""))
+      errors.push(
+        `Module ${c.id} quiz ${k + 1}: bilingual explanation missing`,
+      );
+    scan(`Module ${c.id} quiz`, JSON.stringify(q));
+  });
+  c.sections.forEach((s, k) => {
+    const scenes = buildScenes(c, k);
+    scenesTotal += scenes.length;
+    if (!scenes.some((x) => x.kind === "explain"))
+      errors.push(`Ep ${c.id}.${k + 1}: no explanation scene`);
+    const steps = codeSteps(s.code);
+    const lines = s.code.split("\n").length;
+    if (
+      !steps.length ||
+      steps.some((x) => !x.en || !x.bn || x.from > x.to || x.to >= lines)
+    )
+      errors.push(`Ep ${c.id}.${k + 1}: code walkthrough steps are invalid`);
+  });
+}
+for (const slug of Object.keys(quizzes))
+  if (!chapters.some((c) => c.slug === slug))
+    errors.push(`quiz for unknown module ${slug}`);
+
 scan("BankDB setup", bankDbSetup);
 for (const table of [
   "Branches",
@@ -104,5 +143,5 @@ if (errors.length) {
   process.exit(1);
 }
 console.log(
-  `SQL Server Mastery: ${chapters.length} modules, ${lessons} bilingual lessons, ${examples} T-SQL examples — SQL Server only ✓`,
+  `SQL Server Mastery: ${chapters.length} modules, ${lessons} bilingual lessons, ${examples} T-SQL examples, ${scenesTotal} player scenes, ${chapters.length} quizzes — SQL Server only ✓`,
 );
