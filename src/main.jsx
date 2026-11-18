@@ -36,6 +36,7 @@ import {
   Layers,
   ExternalLink,
   Puzzle,
+  Server,
 } from "lucide-react";
 import ThemeToggle, { ThemeProvider } from "./components/ThemeToggle";
 import modules from "./curriculum.json";
@@ -52,6 +53,7 @@ const LessonReader = lazy(() => import("./components/LessonReader"));
 const Notebook = lazy(() => import("./components/Notebook"));
 const PracticeLab = lazy(() => import("./components/PracticeLab"));
 const HrmsOptimization = lazy(() => import("./components/HrmsOptimization"));
+const SqlServerMastery = lazy(() => import("./components/SqlServerMastery"));
 const BankingGuide = lazy(() => import("./components/BankingGuide"));
 const BeginnerGuide = lazy(() => import("./components/BeginnerGuide"));
 const Sandbox = lazy(() => import("./components/Sandbox"));
@@ -99,12 +101,22 @@ function useLessonRoute() {
   const update = (v) => {
     setValue(v);
     const hash = v ? "#lesson/" + v.m.id + "/" + v.t : "";
-    if (window.location.hash !== hash) window.location.hash = hash;
+    // Closing a lesson only clears lesson hashes, so Escape on other pages keeps their route.
+    if (
+      v
+        ? window.location.hash !== hash
+        : window.location.hash.startsWith("#lesson/")
+    )
+      window.location.hash = hash;
   };
   return [value, update];
 }
 const hrmsPage = "SQL Optimization";
 const hrmsHash = "#sql-optimization";
+const sqlmPage = "SQL Server Mastery";
+const sqlmHash = "#sql-server";
+const isSqlmHash = (hash) =>
+  hash === sqlmHash || hash.startsWith(sqlmHash + "/");
 
 function App() {
   const [page, setPage] = useState(() =>
@@ -114,7 +126,9 @@ function App() {
           ? "DSA Patterns"
           : window.location.hash === hrmsHash
             ? hrmsPage
-            : "Learning path",
+            : isSqlmHash(window.location.hash)
+              ? sqlmPage
+              : "Learning path",
     ),
     [stage, setStage] = useState(-1),
     [level, setLevel] = useState("All levels"),
@@ -169,9 +183,16 @@ function App() {
       } else if (window.location.hash === hrmsHash) {
         setPage(hrmsPage);
         setStage(-1);
+      } else if (isSqlmHash(window.location.hash)) {
+        setPage(sqlmPage);
+        setStage(-1);
       } else if (new URL(event.oldURL).hash === hrmsHash) {
         setPage((current) =>
           current === hrmsPage ? "Learning path" : current,
+        );
+      } else if (isSqlmHash(new URL(event.oldURL).hash)) {
+        setPage((current) =>
+          current === sqlmPage ? "Learning path" : current,
         );
       }
     };
@@ -205,10 +226,13 @@ function App() {
   const navigateWorkspace = (destination) => {
     setPage(destination);
     if (destination === hrmsPage) window.location.hash = hrmsHash;
-    else if (destination === "Banking .NET") window.location.hash = "bank";
+    else if (destination === sqlmPage) {
+      if (!isSqlmHash(window.location.hash)) window.location.hash = sqlmHash;
+    } else if (destination === "Banking .NET") window.location.hash = "bank";
     else if (
       window.location.hash.startsWith("#bank") ||
-      window.location.hash === hrmsHash
+      window.location.hash === hrmsHash ||
+      isSqlmHash(window.location.hash)
     ) {
       window.history.replaceState(
         null,
@@ -266,6 +290,7 @@ function App() {
             [Map, "Learning path"],
             [Puzzle, "DSA Patterns"],
             [Database, hrmsPage],
+            [Server, sqlmPage],
             [Code2, "Playground"],
             [Terminal, "Sandbox"],
             [BookOpen, "My notebook"],
@@ -281,6 +306,7 @@ function App() {
                 <span className="tiny">{modules.length}</span>
               )}
               {n === "DSA Patterns" && <span className="new">30</span>}
+              {n === sqlmPage && <span className="new">25</span>}
               {n === "Sandbox" && <span className="new">NEW</span>}
             </button>
           ))}
@@ -333,7 +359,13 @@ function App() {
         </div>
       </aside>
       <div
-        className={page === hrmsPage ? "shell hrms-shell" : "shell"}
+        className={
+          page === hrmsPage
+            ? "shell hrms-shell"
+            : page === sqlmPage
+              ? "shell sqlm-shell"
+              : "shell"
+        }
         inert={!!lesson || search}
       >
         <header>
@@ -368,6 +400,7 @@ function App() {
             ["Banking .NET", "Banking"],
             ["DSA Patterns", "DSA"],
             [hrmsPage, "SQL Optimization"],
+            [sqlmPage, "SQL Server"],
             ["Playground", "Lab"],
             ["Sandbox", "Run code"],
             ["My notebook", "Notes"],
@@ -384,6 +417,8 @@ function App() {
         <main>
           {page === hrmsPage ? (
             <HrmsOptimization />
+          ) : page === sqlmPage ? (
+            <SqlServerMastery lang={lang} />
           ) : (
             <>
               <div className="eyebrow">

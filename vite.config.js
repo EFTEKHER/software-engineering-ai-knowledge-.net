@@ -8,6 +8,8 @@ export default defineConfig({
             const name = id.split("/").at(-1).replace(/\.js$/, "");
             return "reference-" + name;
           }
+          if (id.includes("/src/content/sqlMastery/"))
+            return "sql-server-mastery";
           if (id.includes("/src/content/")) return "course-content";
           if (
             id.includes("/node_modules/react") ||
