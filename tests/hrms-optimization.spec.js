@@ -212,3 +212,58 @@ test("opens the module from mobile navigation without page overflow", async ({
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(360);
 });
+
+test("adapts the lab across portrait, landscape, tablet and desktop layouts", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto("/#sql-optimization");
+  const picker = page.getByRole("combobox", { name: "Practice challenges" });
+  await picker.selectOption("monthly-growth");
+  const heading = page.getByRole("heading", {
+    name: "Month-over-month payroll growth",
+  });
+  const query = page.getByRole("textbox", { name: "Your query (SQLite)" });
+  const customQuery =
+    "SELECT 1 AS employee_id, 2 AS department_id, 3 AS month_total, 4 AS previous_total, 5 AS growth_pct;";
+  await query.fill(customQuery);
+  await page.getByRole("button", { name: "Run query" }).click();
+  await expect(page.getByRole("table")).toContainText("growth_pct");
+
+  const output = page.getByLabel("SQL output");
+  expect(
+    await output.evaluate(
+      (element) => element.scrollWidth > element.clientWidth,
+    ),
+  ).toBe(true);
+
+  for (const [width, height, compact] of [
+    [320, 568, true],
+    [390, 844, true],
+    [667, 375, true],
+    [768, 1024, true],
+    [834, 1194, true],
+    [1024, 768, false],
+    [1440, 900, false],
+    [2560, 1440, false],
+  ]) {
+    await page.setViewportSize({ width, height });
+    await expect(heading).toBeVisible();
+    await expect(query).toHaveValue(customQuery);
+    const sidebarChoice = page.getByRole("button", {
+      name: "Month-over-month payroll growth",
+    });
+    if (compact) {
+      await expect(picker).toBeVisible();
+      await expect(picker).toHaveValue("monthly-growth");
+      await expect(sidebarChoice).toBeHidden();
+    } else {
+      await expect(picker).toBeHidden();
+      await expect(sidebarChoice).toHaveAttribute("aria-current", "true");
+    }
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+      `Page width at ${width}×${height}`,
+    ).toBeLessThanOrEqual(width);
+  }
+});

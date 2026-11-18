@@ -31,11 +31,24 @@ export default function HrmsOptimization() {
       </header>
       <div className="hrms-layout">
         <nav className="hrms-panel hrms-nav" aria-label="HRMS challenges">
-          <h2>Practice challenges</h2>
+          <h2 id="hrms-challenge-label">Practice challenges</h2>
+          <select
+            className="hrms-challenge-select"
+            aria-labelledby="hrms-challenge-label"
+            value={selected}
+            onChange={(event) => setSelected(event.target.value)}
+          >
+            {challenges.map(({ id, title }) => (
+              <option key={id} value={id}>
+                {title}
+              </option>
+            ))}
+          </select>
           {challenges.map(({ id, title, topic }) => (
             <button
               key={id}
               type="button"
+              className="hrms-challenge-button"
               aria-current={id === selected ? "true" : undefined}
               onClick={() => setSelected(id)}
             >

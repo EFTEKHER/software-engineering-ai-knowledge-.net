@@ -332,7 +332,10 @@ function App() {
           </div>
         </div>
       </aside>
-      <div className="shell" inert={!!lesson || search}>
+      <div
+        className={page === hrmsPage ? "shell hrms-shell" : "shell"}
+        inert={!!lesson || search}
+      >
         <header>
           <div className="breadcrumb">
             Workspace <ChevronRight size={13} />
