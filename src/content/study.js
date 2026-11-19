@@ -138,7 +138,7 @@ export function buildStudyChapter(lesson) {
     en: r.en,
     bn: r.bn,
     decisionEn: lesson.caution + " " + lesson.deep,
-    decisionBn: r.bn,
+    decisionBn: r.cautionBn || r.bn,
     extraSections: [
       ...extraSections,
       {
@@ -170,11 +170,13 @@ export function buildStudyChapter(lesson) {
                     : r.setup) ||
                 "Use a .NET 8+ console project with implicit usings enabled. File examples require sample.txt in the working directory. ReadLine examples need interactive input.",
         setupBn: gap
-          ? web
-            ? "খালি ASP.NET Core project (dotnet new web) বানিয়ে Program.cs বদলান, তারপর curl বা browser দিয়ে পরীক্ষা করুন।"
-            : reference
-              ? "এটি reference অংশ: উপরের setup অনুযায়ী project-এ যুক্ত করুন।"
-              : "নতুন .NET 8 console project (dotnet new console) বানিয়ে Program.cs বদলান এবং dotnet run দিন।"
+          ? r.setupBn
+            ? r.setupBn
+            : web
+              ? "খালি ASP.NET Core project (dotnet new web) বানিয়ে Program.cs বদলান, তারপর curl বা browser দিয়ে পরীক্ষা করুন।"
+              : reference
+                ? "এটি reference অংশ: উপরের setup অনুযায়ী project-এ যুক্ত করুন।"
+                : "নতুন .NET 8 console project (dotnet new console) বানিয়ে Program.cs বদলান এবং dotnet run দিন।"
           : "নতুন .NET console project বানিয়ে Program.cs বদলান। ফাইলের উদাহরণে sample.txt আগে তৈরি করুন।",
         commands: reference
           ? "# Reference fragment: integrate into the project described above."
@@ -204,7 +206,9 @@ export function buildStudyChapter(lesson) {
         title: "Practice and verification · অনুশীলন",
         kind: "Practice checklist",
         language: "markdown",
-        code: `1. Explain ${r.topic} in your own words.\n2. Predict the example output before running.\n3. Run with a normal input and a boundary input.\n4. ${r.exercise || "Change one value and explain why the output changes."}`,
+        code: gap
+          ? `1. Explain ${r.topic} in your own words.\n   নিজের ভাষায় ${r.topic} ব্যাখ্যা করুন।\n2. Predict the output before running.\n   চালানোর আগে ফল কী হবে অনুমান করুন।\n3. Run it, then change one value and compare.\n   চালান, তারপর একটি মান বদলে ফল মিলিয়ে দেখুন।\n4. ${r.exercise}\n   ${r.exerciseBn || r.exercise}`
+          : `1. Explain ${r.topic} in your own words.\n2. Predict the example output before running.\n3. Run with a normal input and a boundary input.\n4. ${r.exercise || "Change one value and explain why the output changes."}`,
       },
     ],
   };

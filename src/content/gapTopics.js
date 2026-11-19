@@ -3,8 +3,16 @@
 import { networkRows } from "./gapNetworks";
 import { microserviceRows } from "./gapMicroservices";
 import { linuxRows } from "./gapLinux";
+import { gapBangla } from "./gapBangla";
 
-export const gapRows = [...networkRows, ...microserviceRows, ...linuxRows];
+export const gapRows = [...networkRows, ...microserviceRows, ...linuxRows].map(
+  (r) => ({
+    ...r,
+    cautionBn: gapBangla[r.topic]?.c,
+    exerciseBn: gapBangla[r.topic]?.x,
+    setupBn: gapBangla[r.topic]?.s,
+  }),
+);
 export const gapModuleIds = [19, 20, 21];
 
 export const gapContexts = {

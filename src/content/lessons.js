@@ -269,6 +269,7 @@ export function getLesson(m, t) {
   if (topic === "Grafana") lang = "promql";
   const lines = annotation(raw.code);
   const warningBn =
+    raw.cautionBn ||
     cliWarnings[m.id]?.[t] ||
     (m.id === 2 && !raw.sqlserver
       ? sqlWarnings[t]
