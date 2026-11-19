@@ -1,4 +1,5 @@
 import { studyConcepts } from "./study";
+import { gapContexts, gapDocs } from "./gapTopics";
 import modules from "../curriculum.json";
 import { cli } from "./cli";
 import { sql } from "./sql";
@@ -236,7 +237,7 @@ export function getLesson(m, t) {
     };
   } else
     raw =
-      ([17, 18].includes(m.id) && studyConcepts[topic]) ||
+      ([17, 18, 19, 20, 21].includes(m.id) && studyConcepts[topic]) ||
       (m.id === 7 && aspnetConcepts[topic]) ||
       (m.id === 16 && ai2028Concepts[topic]) ||
       concepts[topic];
@@ -282,7 +283,7 @@ export function getLesson(m, t) {
     module: m,
     topic,
     index: t,
-    context: contexts[m.id] || contexts[5],
+    context: contexts[m.id] || gapContexts[m.id] || contexts[5],
     lang,
     lines,
     code: lines.map((x) => x.text).join("\n"),
@@ -291,6 +292,7 @@ export function getLesson(m, t) {
   };
 }
 function docs(id, topic) {
+  if (gapDocs[id]) return gapDocs[id];
   if (id === 0) return ["Git documentation", "https://git-scm.com/docs"];
   if (id === 1)
     return [

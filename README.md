@@ -40,6 +40,12 @@ npm run build
 - Topic notes, bookmarks, completion tracking, notebook JSON import/export, Bangla/English search, deep links, and responsive mobile navigation.
 - Downloadable source ZIP generated at build time.
 
+- **Interview roadmap gap modules** (modules 19–21, 39 lessons) that fill topics the rest of the site did not cover, each explained the easy way with an everyday analogy, Bangla + English text, line-by-line annotated C#, and SQL Server (T-SQL) or Linux command examples where they matter:
+  - **Computer Networks for .NET** — OSI, TCP/IP, IP addressing, subnetting & CIDR, MAC & ARP, DNS, DHCP, TCP vs UDP, 3-way handshake, ports & sockets, NAT, routing, switches vs routers, firewalls, proxies & VPN, latency, bandwidth & throughput.
+  - **APIs & Microservices Deep Dive** — request/response & headers, query & path parameters, API keys, service boundaries (DDD), sync vs async, REST vs gRPC, service discovery, database per service, CQRS, event sourcing, distributed transactions (2PC vs saga), service mesh, distributed tracing.
+  - **Linux for .NET Developers** — file system hierarchy, head/tail/less, users & groups, pipes & redirection, package managers, environment variables, cron jobs, ping/ss/netstat, systemd services.
+  Content lives in `src/content/gapNetworks.js`, `gapMicroservices.js` and `gapLinux.js` and is rendered through the study pipeline (`src/content/study.js`).
+
 ## Educational boundaries
 
 The project is a growing guided engineering reference, not an exhaustive textbook or production-ready implementation of each of the 320 systems. Related curriculum entries intentionally share foundational examples. Framework/provider examples are labeled reference fragments; the lesson identifies surrounding dependencies and omitted production concerns. Advanced notes and some UI/reference text remain in English.

@@ -76,6 +76,11 @@ const icons = [
   Workflow,
   BrainCircuit,
   Sparkles,
+  Code2,
+  Server,
+  Network,
+  Boxes,
+  Terminal,
 ];
 const stages = [
   "Foundations",

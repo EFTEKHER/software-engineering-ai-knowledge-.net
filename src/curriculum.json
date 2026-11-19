@@ -582,5 +582,68 @@
       "Integration Tests with WebApplicationFactory",
       "Keyset Pagination & Stable Ordering"
     ]
+  },
+  {
+    "id": 19,
+    "title": "Computer Networks for .NET",
+    "description": "OSI to latency in plain words: IP, subnets, DNS, TCP vs UDP, ports, NAT, routing, firewalls and proxies, each with runnable System.Net C# and the SQL Server connection view.",
+    "stage": 2,
+    "topics": [
+      "OSI Model",
+      "TCP/IP Model",
+      "IP Addressing",
+      "Subnetting & CIDR",
+      "MAC Address & ARP",
+      "DNS",
+      "DHCP",
+      "TCP vs UDP",
+      "3-Way Handshake",
+      "Ports & Sockets",
+      "NAT",
+      "Routing",
+      "Switches vs Routers",
+      "Firewalls",
+      "Proxies & VPN",
+      "Latency",
+      "Bandwidth & Throughput"
+    ]
+  },
+  {
+    "id": 20,
+    "title": "APIs & Microservices Deep Dive",
+    "description": "Request anatomy, parameters and API keys, then service boundaries, sync vs async, REST vs gRPC, discovery, database per service, CQRS, event sourcing, sagas, service mesh and tracing in C# and T-SQL.",
+    "stage": 2,
+    "topics": [
+      "Request, Response & Headers",
+      "Query & Path Parameters",
+      "API Keys",
+      "Service Boundaries (DDD)",
+      "Sync vs Async Communication",
+      "REST vs gRPC",
+      "Service Discovery",
+      "Database per Service",
+      "CQRS",
+      "Event Sourcing",
+      "Distributed Transactions",
+      "Service Mesh",
+      "Distributed Tracing"
+    ]
+  },
+  {
+    "id": 21,
+    "title": "Linux for .NET Developers",
+    "description": "Run ASP.NET Core and SQL Server tools on Linux: file system layout, logs with tail and less, users, pipes, apt, environment variables, cron, network checks and systemd services.",
+    "stage": 0,
+    "topics": [
+      "File System Hierarchy",
+      "head, tail & less",
+      "Users & Groups",
+      "Pipes & Redirection",
+      "Package Managers",
+      "Environment Variables",
+      "cron Jobs",
+      "ping, ss & netstat",
+      "systemd & Services"
+    ]
   }
 ]

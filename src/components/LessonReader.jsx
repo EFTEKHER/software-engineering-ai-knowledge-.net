@@ -257,8 +257,8 @@ export default function LessonReader({
               <div>
                 <h3>Everyday analogy · বাস্তব জীবনের তুলনা</h3>
                 <Pair
-                  en={l.context.analogy[0]}
-                  bn={l.context.analogy[1]}
+                  en={(l.analogy || l.context.analogy)[0]}
+                  bn={(l.analogy || l.context.analogy)[1]}
                   lang={lang}
                 />
               </div>
